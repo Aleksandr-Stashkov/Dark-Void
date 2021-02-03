@@ -58,3 +58,15 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+Library/
+Logs/
+obj/
+Packages/
+ProjectSettings/
+UserSettings/
+Assets/Audio/
+Assets/Materials/
+Assets/Prefabs/
+Assets/Scenes/
+Assets/Sprites/
+Assets/TextMesh Pro/
