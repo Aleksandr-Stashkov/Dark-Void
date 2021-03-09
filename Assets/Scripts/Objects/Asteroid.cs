@@ -20,7 +20,7 @@ public class Asteroid : Moving_Object
     protected override void Start()
     {
         _spawnManager = transform.parent.parent.GetComponent<Spawn_Manager>();
-        _player = _spawnManager._player.GetComponent<Player>();
+        _player = _spawnManager._player;
         audio_destruction = transform.parent.GetComponent<AudioSource>();
         //Objects check        
         if (_Explosion == null)

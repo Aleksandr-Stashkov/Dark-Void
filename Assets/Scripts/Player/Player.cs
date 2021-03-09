@@ -5,53 +5,58 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     //Managers
-    private Spawn_Manager _spawnManager;    
-    private UI_Manager _UI_Manager;
+    protected Spawn_Manager _spawnManager;
+    protected UI_Manager _UI_Manager;
     //Associated objects
-    private GameObject _shield, _thruster, _damage1, _damage2, _damage3;
+    protected GameObject _shield, _thruster, _damage1, _damage2, _damage3;
     //Associated audio
-    private AudioSource audio_source;
+    protected AudioSource audio_source;
     [SerializeField]
-    private AudioClip audio_fire, audio_powerup, audio_damage;
+    protected AudioClip audio_fire, audio_powerup, audio_damage;
     //Prefabs
     [SerializeField]
     public GameObject _laser;
     [SerializeField]
-    private GameObject _triple_laser;
+    protected GameObject _triple_laser;
 
     //Movement
+    [HideInInspector]
     public float t_entrance = 5.0f; //time of reaching the starting position
-    private float v_hor = 6f;
-    private float v_up = 8f;
-    private float v_down = 4.5f;
-    private float v_speedup = 1.5f; //times of the normal speed
-    private float speedup_time = 5f; //active time of speedup PU
-    private enum Direction {Up, Down, Right, Left};
+    protected float v_side = 6f;
+    protected float v_for = 8f;
+    protected float v_back = 4.5f;
+    protected float v_speedup = 1.5f; //times of the normal speed
+    protected float speedup_time = 5f; //active time of speedup PU
+    protected enum Direction {Up, Down, Right, Left};
     Direction forward = Direction.Up; //Forward direction
     //Fire
-    private float t_laser_cooldown = 0.1f;
-    private float triple_laser_time = 5f;  //active time of triple laser PU
+    protected float t_laser_cooldown = 0.1f;
+    protected float triple_laser_time = 5f;  //active time of triple laser PU
     //Damage
-    private int Enemy_col_damage = 1;
-    private int Obj_col_damage = 1;
+    protected int Enemy_col_damage = 1;
+    protected int Obj_col_damage = 1;
     //Player stat
-    private int Player_health = 4;
-    private int Player_kills = 0;
+    protected int Player_health = 4;
+    protected int Player_kills = 0;
     //Triggers
-    private bool thrust_on = false;
-    private bool thrust_current = false;
-    private bool rotation_fix = true;
-    private bool Fire_enabled = true;
-    private bool PU_triple = false;
-    private bool PU_speed = false;
+    protected bool thrust_on = false;
+    protected bool thrust_current = false;
+    protected bool rotation_fix = true;
+    protected bool Fire_enabled = true;
+    protected bool PU_triple = false;
+    protected bool PU_speed = false;
     //Collision counters for PU and fire cooldown
-    private int Fire_cooldown_count = 0;
-    private int PU_Triple_count = 0;
-    private int PU_speed_count = 0;
+    protected int Fire_cooldown_count = 0;
+    protected int PU_Triple_count = 0;
+    protected int PU_speed_count = 0;
 
-    void Start()
+    protected virtual void Start()
     {
         _spawnManager = GameObject.FindGameObjectWithTag("Spawn_Manager").GetComponent<Spawn_Manager>();
+        if (_spawnManager == null)
+        {
+            Debug.LogError("Player could not locate Spawn Manager.");
+        }
         _UI_Manager = _spawnManager._UI_manager;
         audio_source = transform.GetComponent<AudioSource>();
         //Identifying child objects
@@ -79,14 +84,10 @@ public class Player : MonoBehaviour
                     break;
             }
         }
-        //Objects check
-        if (_spawnManager == null)
-        {
-            Debug.LogError("Player could not locate Spawn Manager.");
-        }        
+        //Objects check             
         if (_UI_Manager == null) {
             Debug.LogWarning("Player could not obtain link to UI Canvas.");
-        }
+        }        
         if (audio_source == null)
         {
             Debug.LogWarning("Player could not locate its audio source.");
@@ -132,15 +133,15 @@ public class Player : MonoBehaviour
             Debug.LogError("Player could not locate Fire3.");
         }
         //Parameters check
-        if (v_hor <= 0)
+        if (v_side <= 0)
         {
             Debug.LogWarning("Player horizontal speed is equal to or less than 0.");
         }
-        if (v_up <= 0)
+        if (v_for <= 0)
         {
             Debug.LogWarning("Player forward speed is equal to or less than 0.");
         }
-        if (v_down <= 0)
+        if (v_back <= 0)
         {
             Debug.LogWarning("Player backward speed is equal to or less than 0.");
         }        
@@ -148,22 +149,18 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Player health is set below 1.");
         }
-        //UI initial set
-        _UI_Manager.Score_update(Player_kills);
-        _UI_Manager.Lives_update(Player_health);
+       
         //Player initial set
         _shield.gameObject.SetActive(false);
         _damage1.gameObject.SetActive(false);
         _damage2.gameObject.SetActive(false);
         _damage3.gameObject.SetActive(false);
-        transform.position = new Vector3(0, -6f, 0);
         transform.rotation = Quaternion.Euler(0,0,0);
-        StartCoroutine(Entrance());
     }
 
-    void Update()
+    protected void Update()
     {
-        if (Time.timeSinceLevelLoad <= t_entrance)
+        if (Time.timeSinceLevelLoad <= t_entrance && t_entrance != 0)
         {
             //Player entrance
             transform.Translate(Vector3.up * 5f / t_entrance * Time.deltaTime, Space.World);
@@ -180,13 +177,13 @@ public class Player : MonoBehaviour
     }
 
     //Starting pause before activating UI
-    IEnumerator Entrance()
+    protected IEnumerator Entrance()
     {
         yield return new WaitForSeconds(t_entrance);
         _UI_Manager.Trigger_UI();
     }
 
-    void Movement()
+    protected void Movement()
     {
         float input_h = Input.GetAxis("Horizontal");
         float input_v = Input.GetAxis("Vertical");
@@ -202,48 +199,48 @@ public class Player : MonoBehaviour
             case Direction.Up:
                 if (input_v > 0)
                 {
-                    transform.Translate((Vector3.up * v_up * input_v + Vector3.right * v_hor * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_for * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
                     thrust_current = true;
                 }
                 else if (input_v <= 0)
                 {
-                    transform.Translate((Vector3.up * v_down * input_v + Vector3.right * v_hor * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_back * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
                     thrust_current = false;
                 }
                 break;
             case Direction.Down:
                 if (input_v >= 0)
                 {
-                    transform.Translate((Vector3.up * v_down * input_v + Vector3.right * v_hor * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_back * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
                     thrust_current = false;
                 }
                 else if (input_v < 0)
                 {
-                    transform.Translate((Vector3.up * v_up * input_v + Vector3.right * v_hor * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_for * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
                     thrust_current = true;
                 }
                 break;
             case Direction.Right:
                 if (input_h > 0)
                 {
-                    transform.Translate((Vector3.up * v_hor * input_v + Vector3.right * v_up * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_for * input_h) * Time.deltaTime, Space.World);
                     thrust_current = true;
                 }
                 else if (input_h <= 0)
                 {
-                    transform.Translate((Vector3.up * v_hor * input_v + Vector3.right * v_down * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_back * input_h) * Time.deltaTime, Space.World);
                     thrust_current = false;
                 }
                 break;
             case Direction.Left:
                 if (input_h >= 0)
                 {
-                    transform.Translate((Vector3.up * v_hor * input_v + Vector3.right * v_down * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_back * input_h) * Time.deltaTime, Space.World);
                     thrust_current = false;
                 }
                 else if (input_h < 0)
                 {
-                    transform.Translate((Vector3.up * v_hor * input_v + Vector3.right * v_up * input_h) * Time.deltaTime, Space.World);
+                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_for * input_h) * Time.deltaTime, Space.World);
                     thrust_current = true;
                 }
                 break;
@@ -283,7 +280,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void Fire()
+    protected void Fire()
     {
         if (PU_triple == true)
         {
@@ -300,8 +297,8 @@ public class Player : MonoBehaviour
 
         StartCoroutine(Fire_cooldown());
     }
-    
-    IEnumerator Fire_cooldown()
+
+    protected IEnumerator Fire_cooldown()
     {
         Fire_cooldown_count++;
         Fire_enabled = false;
@@ -314,7 +311,7 @@ public class Player : MonoBehaviour
     }
 
     //Activation of triple shot PU
-    IEnumerator PU_triple_act()
+    protected IEnumerator PU_triple_act()
     {
         PU_Triple_count++;
         PU_triple = true;
@@ -326,7 +323,7 @@ public class Player : MonoBehaviour
     }
 
     //Activation of speed boost PU
-    IEnumerator PU_speed_act()
+    protected IEnumerator PU_speed_act()
     {
         PU_speed_count++;
         PU_speed = true;
@@ -339,7 +336,7 @@ public class Player : MonoBehaviour
     }
 
     // PU collisions
-    private void OnTriggerEnter2D(Collider2D other)
+    protected void OnTriggerEnter2D(Collider2D other)
     {
         switch (other.tag)
         {
@@ -470,8 +467,12 @@ public class Player : MonoBehaviour
         rotation_fix = true;
         StartCoroutine(Stop_rotation(dir, t_stop, t_stop + Time.timeSinceLevelLoad));
     }
-    private IEnumerator Stop_rotation(Vector3 dir, float t, float t_end)
+    protected IEnumerator Stop_rotation(Vector3 dir, float t, float t_end)
     {
+        if (t == 0) {
+            Debug.LogWarning("Coroutine Stop_rotation got 0 as the time of execution.");
+            yield return null;
+        }
         float w_stop; //angular velocity
         float Z = Quaternion.FromToRotation(transform.up, dir).eulerAngles.z; //angle of rotation
         if (Mathf.Abs(Z) <= 180) {

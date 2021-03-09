@@ -69,10 +69,28 @@ public class Spawn_Manager : MonoBehaviour
 
     void Start()
     {
-        _laser_cont = GameObject.Find("LaserContainer");
-        _enemy_cont = GameObject.Find("EnemyContainer");
-        _PU_cont = GameObject.Find("PUContainer");
-        _obj_cont = GameObject.Find("ObjectContainer");
+        //Identifying child objects
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            switch (transform.GetChild(i).name)
+            {
+                case "LaserContainer":
+                    _laser_cont = transform.GetChild(i).gameObject;
+                    break;
+                case "EnemyContainer":
+                    _enemy_cont = transform.GetChild(i).gameObject;
+                    break;
+                case "PUContainer":
+                    _PU_cont = transform.GetChild(i).gameObject;
+                    break;
+                case "ObjectContainer":
+                    _obj_cont = transform.GetChild(i).gameObject;
+                    break;                
+                default:
+                    Debug.LogWarning("There is an unrecognized child of Spawn Manager.");
+                    break;
+            }
+        }        
         _UI_manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();       
         _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
         audio_background = GameObject.FindGameObjectWithTag("Audio_Manager").GetComponent<AudioSource>();
