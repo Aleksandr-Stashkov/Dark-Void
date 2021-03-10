@@ -20,8 +20,10 @@ public class Player : MonoBehaviour
     protected GameObject _triple_laser;
 
     //Movement
+    protected bool User_Control = false;
+    protected bool rotation_fix = true;
     [HideInInspector]
-    public float t_entrance = 5.0f; //time of reaching the starting position
+    public float t_entrance = 0f; //time for reaching the starting position
     protected float v_side = 6f;
     protected float v_for = 8f;
     protected float v_back = 4.5f;
@@ -30,6 +32,7 @@ public class Player : MonoBehaviour
     protected enum Direction {Up, Down, Right, Left};
     Direction forward = Direction.Up; //Forward direction
     //Fire
+    protected bool Fire_enabled = true;
     protected float t_laser_cooldown = 0.1f;
     protected float triple_laser_time = 5f;  //active time of triple laser PU
     //Damage
@@ -41,8 +44,6 @@ public class Player : MonoBehaviour
     //Triggers
     protected bool thrust_on = false;
     protected bool thrust_current = false;
-    protected bool rotation_fix = true;
-    protected bool Fire_enabled = true;
     protected bool PU_triple = false;
     protected bool PU_speed = false;
     //Collision counters for PU and fire cooldown
@@ -57,7 +58,7 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Player could not locate Spawn Manager.");
         }
-        _UI_Manager = _spawnManager._UI_manager;
+        _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
         audio_source = transform.GetComponent<AudioSource>();
         //Identifying child objects
         for (int i=0; i < transform.childCount; i++)
@@ -149,6 +150,10 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Player health is set below 1.");
         }
+        if (User_Control)
+        {
+            Debug.LogWarning("User will control the Player from the start.");
+        }
        
         //Player initial set
         _shield.gameObject.SetActive(false);
@@ -156,38 +161,41 @@ public class Player : MonoBehaviour
         _damage2.gameObject.SetActive(false);
         _damage3.gameObject.SetActive(false);
         transform.rotation = Quaternion.Euler(0,0,0);
+        StartCoroutine(Entrance_timer());
+    }
+
+    //Events related to entrance pause
+    protected virtual IEnumerator Entrance_timer()
+    {
+        yield return new WaitForSeconds(t_entrance);
+        User_Control = true;
     }
 
     protected void Update()
     {
-        if (Time.timeSinceLevelLoad <= t_entrance && t_entrance != 0)
-        {
-            //Player entrance
-            transform.Translate(Vector3.up * 5f / t_entrance * Time.deltaTime, Space.World);
-        }
-        else
+        if(User_Control)
         {            
-            Movement();
-
             if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && Fire_enabled)
             {
                 Fire();
             }
-        }
-    }
 
-    //Starting pause before activating UI
-    protected IEnumerator Entrance()
-    {
-        yield return new WaitForSeconds(t_entrance);
-        _UI_Manager.Trigger_UI();
-    }
+            Movement();
+        }
+        else
+        {
+            if (Time.timeSinceLevelLoad <= t_entrance)
+            {
+                Entrance_Movement();
+            }
+        }
+    }  
 
     protected void Movement()
     {
         float input_h = Input.GetAxis("Horizontal");
         float input_v = Input.GetAxis("Vertical");
-
+        //speed modificator
         if (PU_speed)
         {
             input_h *= v_speedup;
@@ -260,7 +268,7 @@ public class Player : MonoBehaviour
             }
             thrust_on = thrust_current;            
         }
-
+        //Rotation
         if (!rotation_fix)
         {
             Vector3 M = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
@@ -278,6 +286,12 @@ public class Player : MonoBehaviour
                 _damage3.transform.rotation *= Quaternion.FromToRotation(_damage3.transform.up, Vector3.up);
             }
         }
+    }   
+
+    //Entrance Movement
+    protected virtual void Entrance_Movement()
+    {
+        transform.Translate(Vector3.up * 5f / t_entrance * Time.deltaTime, Space.World);        
     }
 
     protected void Fire()
@@ -406,16 +420,16 @@ public class Player : MonoBehaviour
     }
 
     //Adding to kill count
-    public void Kill_count(int add)
+    public virtual void Kill_count(int add)
     {
-        Player_kills += add;
-        _UI_Manager.Score_update(Player_kills);
+        Player_kills += add;        
     }
 
     //Player taking damage
-    public void Take_Damage(int Damage)
+    public virtual void Take_Damage(int Damage)
     {
         audio_source.PlayOneShot(audio_damage);
+
         if (Damage > Player_health)
         {
             Player_health = 0;
@@ -437,9 +451,7 @@ public class Player : MonoBehaviour
                     _damage3.gameObject.SetActive(true);
                     break;
             }
-        }
-        
-        _UI_Manager.Lives_update(Player_health);
+        }       
     }
 
     //Returns Player's lives
@@ -458,6 +470,15 @@ public class Player : MonoBehaviour
         else
         {
             return false;
+        }
+    }
+
+    public void Set_t_entrance(float t)
+    {
+        t_entrance = t;
+        if(t_entrance == 0)
+        {
+            User_Control = true;
         }
     }
 
@@ -519,4 +540,6 @@ public class Player : MonoBehaviour
     {
         rotation_fix = false;
     }
+
+    public virtual bool Is_Player1() { return true; }
 }
