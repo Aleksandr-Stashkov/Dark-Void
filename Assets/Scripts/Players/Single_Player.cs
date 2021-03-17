@@ -15,6 +15,44 @@ public class Single_Player : Player
         transform.position = new Vector3(0, -6f, 0);
     }
 
+    protected override void Update()
+    {
+        if (User_Control)
+        {
+            if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && Fire_enabled)
+            {
+                Fire();
+            }
+
+            Movement();
+        }
+        else
+        {
+            base.Update();
+        }
+    }
+
+    protected override void Movement()
+    {
+
+        base.Movement();
+
+        //Rotation
+        if (!rotation_fix)
+        {
+            Mouse_Rotation();
+        }
+    }
+
+    protected override float GetHorizontal()
+    {
+        return Input.GetAxis("Horizontal_Single");
+    }
+    protected override float GetVertical()
+    {
+        return Input.GetAxis("Vertical_Single");
+    }
+
     protected override IEnumerator Entrance_timer()
     {
         yield return StartCoroutine(base.Entrance_timer());

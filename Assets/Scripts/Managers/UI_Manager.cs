@@ -69,14 +69,17 @@ public class UI_Manager : MonoBehaviour
         {
             Debug.LogWarning("UI Canvas could not locate Restart text.");
         }
-        if (_Score_2 == null)
+        if (_Game_manager.Check_Coop())
         {
-            Debug.LogWarning("UI Canvas could not locate Score text.");
+            if (_Score_2 == null)
+            {
+                Debug.LogWarning("UI Canvas could not locate Score text 2.");
+            }
+            if (_Lives_2 == null)
+            {
+                Debug.LogWarning("UI Canvas could not locate Lives image 2.");
+            }
         }
-        if (_Lives_2 == null)
-        {
-            Debug.LogWarning("UI Canvas could not locate Lives image.");
-        }        
 
         _Score.gameObject.SetActive(false);
         _Lives.gameObject.SetActive(false);

@@ -38,20 +38,20 @@ public class Coop_Spawn_Manager : Spawn_Manager
         _players = GameObject.FindGameObjectsWithTag("Player");
         if(_players.Length == 2)
         {
-            _player = _players[0].GetComponent<Player>();
+            _player = _players[0].GetComponent<Coop_Player>();
             if (_player.Is_Player1())
             {
-                _player_2 = _players[1].GetComponent<Player>();
+                _player_2 = _players[1].GetComponent<Coop_Player>();
             }
             else
             {
                 _player_2 = _player;
-                _player = _players[1].GetComponent<Player>();
+                _player = _players[1].GetComponent<Coop_Player>();
             }
         }
         else
         {
-            Debug.LogWarning("The number of players is different from two.");
+            Debug.LogWarning("The number of players is other than two.");
         }
     }
 

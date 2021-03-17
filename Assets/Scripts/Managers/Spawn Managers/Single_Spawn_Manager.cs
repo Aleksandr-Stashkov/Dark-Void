@@ -8,7 +8,7 @@ public class Single_Spawn_Manager : Spawn_Manager
     {
         base.Start();
 
-        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Single_Player>();
         if (_player == null)
         {
             Debug.LogError("Spawn Manager could not locate Player.");

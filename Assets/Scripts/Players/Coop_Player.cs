@@ -5,7 +5,7 @@ using UnityEngine;
 public class Coop_Player : Player
 {
     [SerializeField]
-    private bool Player1= false;
+    private bool Player1 = false;
 
     protected override void Start()
     {
@@ -28,6 +28,46 @@ public class Coop_Player : Player
             _UI_Manager.Lives_update_2(Player_health);
             //Player 2 initial set
             transform.position = new Vector3(5f, -6f, 0);            
+        }
+    }
+
+    protected override void Update()
+    {
+        if (User_Control)
+        {
+            if ((Input.GetKeyDown(KeyCode.Space) && Player1 && Fire_enabled) || (Input.GetMouseButtonDown(0) && !Player1 && Fire_enabled))
+            {
+                Fire();
+            }
+
+            Movement();
+        }
+        else
+        {
+            base.Update();
+        }
+    }
+
+    protected override float GetHorizontal()
+    {
+        if (Player1)
+        {
+            return Input.GetAxis("Horizontal_Player1");
+        }
+        else
+        {
+            return Input.GetAxis("Horizontal_Player2");
+        }
+    }
+    protected override float GetVertical()
+    {
+        if (Player1)
+        {
+            return Input.GetAxis("Vertical_Player1");
+        }
+        else
+        {
+            return Input.GetAxis("Vertical_Player2");
         }
     }
 

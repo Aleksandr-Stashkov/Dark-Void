@@ -171,30 +171,19 @@ public class Player : MonoBehaviour
         User_Control = true;
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
-        if(User_Control)
-        {            
-            if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && Fire_enabled)
-            {
-                Fire();
-            }
-
-            Movement();
-        }
-        else
-        {
             if (Time.timeSinceLevelLoad <= t_entrance)
             {
                 Entrance_Movement();
             }
-        }
     }  
 
-    protected void Movement()
+
+    protected virtual void Movement()
     {
-        float input_h = Input.GetAxis("Horizontal");
-        float input_v = Input.GetAxis("Vertical");
+        float input_h = GetHorizontal();
+        float input_v = GetVertical();
         //speed modificator
         if (PU_speed)
         {
@@ -267,26 +256,36 @@ public class Player : MonoBehaviour
                 _thruster.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             }
             thrust_on = thrust_current;            
-        }
-        //Rotation
-        if (!rotation_fix)
+        }       
+    }
+
+    protected virtual float GetHorizontal()
+    {
+        return 0f;
+    }
+    protected virtual float GetVertical()
+    {
+        return 0f;
+    }
+
+    //Rotation towards mouse position
+    protected void Mouse_Rotation()
+    {
+        Vector3 M = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
+        transform.rotation *= Quaternion.FromToRotation(transform.up, (M - transform.position));
+        if (_damage1.activeSelf)
         {
-            Vector3 M = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
-            transform.rotation *= Quaternion.FromToRotation(transform.up, (M - transform.position));
-            if (_damage1.activeSelf)
-            {
-                _damage1.transform.rotation *= Quaternion.FromToRotation(_damage1.transform.up, Vector3.up);
-            }
-            if (_damage2.activeSelf)
-            {
-                _damage2.transform.rotation *= Quaternion.FromToRotation(_damage2.transform.up, Vector3.up);
-            }
-            if (_damage3.activeSelf)
-            {
-                _damage3.transform.rotation *= Quaternion.FromToRotation(_damage3.transform.up, Vector3.up);
-            }
+            _damage1.transform.rotation *= Quaternion.FromToRotation(_damage1.transform.up, Vector3.up);
         }
-    }   
+        if (_damage2.activeSelf)
+        {
+            _damage2.transform.rotation *= Quaternion.FromToRotation(_damage2.transform.up, Vector3.up);
+        }
+        if (_damage3.activeSelf)
+        {
+            _damage3.transform.rotation *= Quaternion.FromToRotation(_damage3.transform.up, Vector3.up);
+        }
+    }
 
     //Entrance Movement
     protected virtual void Entrance_Movement()
@@ -473,6 +472,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    //Initial set of entrance time
     public void Set_t_entrance(float t)
     {
         t_entrance = t;
@@ -534,12 +534,7 @@ public class Player : MonoBehaviour
             _damage3.transform.rotation *= Quaternion.FromToRotation(_damage3.transform.up, dir);
         }
         yield return null;
-    }
-
-    public void Start_Rot()
-    {
-        rotation_fix = false;
-    }
+    }   
 
     public virtual bool Is_Player1() { return true; }
 }
