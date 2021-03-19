@@ -5,6 +5,8 @@ using UnityEngine;
 public class Laser : MonoBehaviour
 {
     private float v = 12f;
+    //Player flag for Coop
+    private Player _player;
 
     void Start()
     {
@@ -20,7 +22,7 @@ public class Laser : MonoBehaviour
         transform.Translate(transform.up * v * Time.deltaTime, Space.World);
 
         if (transform.position.y > 8f || transform.position.y < -8f || transform.position.x > 10f || transform.position.x < -10f){
-            if (transform.parent.tag == "Fire")
+            if (transform.parent.CompareTag("Fire"))
             {
                 // Triple laser destruction
                 Destroy(transform.parent.gameObject);
@@ -30,5 +32,15 @@ public class Laser : MonoBehaviour
                 Destroy(transform.gameObject);
             }
         }
+    }
+
+    public void SetPlayer(Player _player_ref)
+    {
+        _player = _player_ref;
+    }
+
+    public void Player_add_score(int score)
+    {
+        _player.Kill_count(score);
     }
 }

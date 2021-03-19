@@ -95,31 +95,31 @@ public class Enemy : Moving_Object
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.tag == "Fire")
-        {
+        if (other.CompareTag("Fire"))
+        {                     
+            _Collider.enabled = false;
+            other.gameObject.SetActive(false);
+            other.transform.GetComponent<Laser>().Player_add_score(1);
+            alive = false;
+            _Anim.SetTrigger("Enemy_dead");           
+            audio_destruction.PlayOneShot(audio_destruction.clip);
             Destroy(other.gameObject);
-            _Collider.enabled = false;
-            alive = false;
-            _Anim.SetTrigger("Enemy_dead");
-            _player.Kill_count(1);
-            audio_destruction.PlayOneShot(audio_destruction.clip);
-            Destroy(transform.gameObject, 2.37f);
+            Destroy(transform.gameObject, 2.37f);            
         }
-        if (other.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             _Collider.enabled = false;
             alive = false;
-            _player.Enemy_collide();
+            other.GetComponent<Player>().Enemy_collide();
             _Anim.SetTrigger("Enemy_dead");
             audio_destruction.PlayOneShot(audio_destruction.clip);
             Destroy(transform.gameObject, 2.37f);
         }
-        if (other.tag == "Asteroid")
+        if (other.CompareTag("Asteroid"))
         {
             _Collider.enabled = false;
             alive = false;
-            _Anim.SetTrigger("Enemy_dead");
-            _player.Kill_count(1);
+            _Anim.SetTrigger("Enemy_dead");            
             audio_destruction.PlayOneShot(audio_destruction.clip);
             Destroy(transform.gameObject, 2.37f);
         }       

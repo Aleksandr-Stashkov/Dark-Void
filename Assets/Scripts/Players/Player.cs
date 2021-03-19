@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     protected AudioClip audio_fire, audio_powerup, audio_damage;
     //Prefabs
     [SerializeField]
-    public GameObject _laser;
+    protected GameObject _laser;
     [SerializeField]
     protected GameObject _triple_laser;
 
@@ -297,14 +297,20 @@ public class Player : MonoBehaviour
     {
         if (PU_triple == true)
         {
-            Instantiate(_triple_laser, transform.position, transform.rotation, _spawnManager._laser_cont.transform);
+            GameObject _new_triple = Instantiate(_triple_laser, transform.position, transform.rotation, _spawnManager._laser_cont.transform);
+            Laser[] lasers = _new_triple.GetComponentsInChildren<Laser>();
+            foreach (Laser laser in lasers)
+            {
+                laser.SetPlayer(this);
+            }
             audio_source.PlayOneShot(audio_fire);
             audio_source.PlayOneShot(audio_fire);
             audio_source.PlayOneShot(audio_fire);
         }
         else
         {
-            Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _spawnManager._laser_cont.transform);
+            GameObject _new_laser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _spawnManager._laser_cont.transform);
+            _new_laser.GetComponent<Laser>().SetPlayer(this);
             audio_source.PlayOneShot(audio_fire);
         }
 

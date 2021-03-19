@@ -75,7 +75,7 @@ public class Asteroid : Moving_Object
         transform.gameObject.SetActive(false);
         audio_destruction.PlayOneShot(audio_destruction.clip);
 
-        if (other.tag == "Fire" || other.tag == "Fire_enemy")
+        if (other.CompareTag("Fire") || other.CompareTag("Fire_enemy"))
         {
             Destroy(other.gameObject);            
             if (trigger == true)
@@ -83,7 +83,7 @@ public class Asteroid : Moving_Object
                 _spawnManager.Asteroid_destroyed();
             }           
         }
-        if (other.tag == "Player")
+        if (other.CompareTag("Player"))
         {
             _player.Object_collide();            
         }

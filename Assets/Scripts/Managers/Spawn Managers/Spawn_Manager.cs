@@ -220,16 +220,16 @@ public class Spawn_Manager : MonoBehaviour
         switch (dir)
         {
             case Wave_dir.Down:
-                GameObject _new_enemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _enemy_cont.transform);
                 break;
             case Wave_dir.Up:
-                _new_enemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _enemy_cont.transform);
                 break;
             case Wave_dir.Right:
-                _new_enemy = Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
                 break;
             case Wave_dir.Left:
-                _new_enemy = Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
                 break;
         }
     }

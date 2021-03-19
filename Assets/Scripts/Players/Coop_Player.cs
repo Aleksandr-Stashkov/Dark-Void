@@ -97,7 +97,7 @@ public class Coop_Player : Player
                 transform.position = new Vector3(5f, -1f, 0);
             }
         }
-    }
+    }    
 
     public override void Kill_count(int add)
     {
