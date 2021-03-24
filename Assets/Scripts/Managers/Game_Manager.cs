@@ -21,11 +21,11 @@ public class Game_Manager : MonoBehaviour
     {
         if (Restart && Input.GetKeyUp(KeyCode.R))
         {
-            SceneManager.LoadScene("Level_01");
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         if (Input.GetKeyUp(KeyCode.Escape))
         {
-            SceneManager.LoadScene("Main Menu");
+            SceneManager.LoadScene("Main_Menu");
         }
     }
 

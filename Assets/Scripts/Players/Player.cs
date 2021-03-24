@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     protected UI_Manager _UI_Manager;
     //Associated objects
     protected GameObject _shield, _thruster, _damage1, _damage2, _damage3;
+    protected Animator _anim;
+    protected int anim_Turn_Left_id, anim_Turn_Right_id;
     //Associated audio
     protected AudioSource audio_source;
     [SerializeField]
@@ -59,7 +61,14 @@ public class Player : MonoBehaviour
             Debug.LogError("Player could not locate Spawn Manager.");
         }
         _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
-        audio_source = transform.GetComponent<AudioSource>();
+        _anim = GetComponent<Animator>();
+        if (_anim == null)
+        {
+            Debug.LogError("Player could not locate its animator.");
+        }
+        anim_Turn_Left_id = Animator.StringToHash("Turn_Left");
+        anim_Turn_Right_id = Animator.StringToHash("Turn_Right");
+        audio_source = GetComponent<AudioSource>();
         //Identifying child objects
         for (int i=0; i < transform.childCount; i++)
         {
@@ -104,6 +113,14 @@ public class Player : MonoBehaviour
         if (audio_damage == null)
         {
             Debug.LogWarning("Player could not locate damage audio.");
+        }
+        if (anim_Turn_Left_id == 0)
+        {
+            Debug.LogWarning("Player's animator could not find Turn_Left parameter.");
+        }
+        if (anim_Turn_Right_id == 0)
+        {
+            Debug.LogWarning("Player's animator could not find Turn_Right parameter.");
         }
         if (_laser == null)
         {
@@ -203,7 +220,8 @@ public class Player : MonoBehaviour
                 {
                     transform.Translate((Vector3.up * v_back * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
                     thrust_current = false;
-                }
+                }                
+                Turn_Animation(input_h);
                 break;
             case Direction.Down:
                 if (input_v >= 0)
@@ -216,6 +234,7 @@ public class Player : MonoBehaviour
                     transform.Translate((Vector3.up * v_for * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
                     thrust_current = true;
                 }
+                Turn_Animation(input_h);
                 break;
             case Direction.Right:
                 if (input_h > 0)
@@ -228,6 +247,7 @@ public class Player : MonoBehaviour
                     transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_back * input_h) * Time.deltaTime, Space.World);
                     thrust_current = false;
                 }
+                Turn_Animation(input_v);
                 break;
             case Direction.Left:
                 if (input_h >= 0)
@@ -240,10 +260,11 @@ public class Player : MonoBehaviour
                     transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_for * input_h) * Time.deltaTime, Space.World);
                     thrust_current = true;
                 }
+                Turn_Animation(input_v);
                 break;
         }
         //Position limits
-        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.15f, 9.15f), Mathf.Clamp(transform.position.y, -3.50f, 5.67f), 0);
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.15f, 9.15f), Mathf.Clamp(transform.position.y, -3.50f, 5.67f), 0);        
         //Thruster scale change
         if (thrust_on != thrust_current)
         {
@@ -267,6 +288,26 @@ public class Player : MonoBehaviour
     {
         return 0f;
     }
+
+    //Managing Animator's parameters for turns
+    protected void Turn_Animation(float right)
+    {
+        if (right == 0)
+        {
+            _anim.SetBool(anim_Turn_Right_id, false);
+            _anim.SetBool(anim_Turn_Left_id, false);
+        }
+        else if (right > 0)
+        {
+            _anim.SetBool(anim_Turn_Right_id, true);
+        }
+        else
+        {
+            _anim.SetBool(anim_Turn_Left_id, true);
+        }
+    }
+
+
 
     //Rotation towards mouse position
     protected void Mouse_Rotation()
