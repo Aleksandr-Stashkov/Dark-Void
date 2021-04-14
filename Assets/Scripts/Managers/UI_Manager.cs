@@ -9,10 +9,10 @@ public class UI_Manager : MonoBehaviour
     //Managers
     private Game_Manager _Game_manager;
     //UI elements
-    private Text _Score, _Score_2;
+    private Text _Score, _Score_2, _GAME_OVER;
     private Image _Lives, _Lives_2;
-    private Text _GAME_OVER;
     private TMP_Text _Restart;
+    private GameObject _Pause_Menu;
     //UI assets
     [SerializeField]
     private Sprite[] _liveSprite;
@@ -40,8 +40,11 @@ public class UI_Manager : MonoBehaviour
                 case "GAME_OVER_text":
                     _GAME_OVER = transform.GetChild(i).GetComponent<Text>();
                     break;
-                case "Restart_text":
+                case "Restart_TMP":
                     _Restart = transform.GetChild(i).GetComponent<TMP_Text>();
+                    break;
+                case "Pause_Menu_panel":
+                    _Pause_Menu = transform.GetChild(i).gameObject;
                     break;
                 default:
                     Debug.LogWarning("There is an unrecognized child of UI Canvas.");
@@ -69,6 +72,10 @@ public class UI_Manager : MonoBehaviour
         {
             Debug.LogWarning("UI Canvas could not locate Restart text.");
         }
+        if (_Pause_Menu == null)
+        {
+            Debug.LogWarning("UI Canvas could not locate Pause Menu panel.");
+        }
         if (_Game_manager.Check_Coop())
         {
             if (_Score_2 == null)
@@ -81,10 +88,14 @@ public class UI_Manager : MonoBehaviour
             }
         }
 
+        //Sending Pause Menu reference to Game Manager
+        _Game_manager.Set_Pause_Menu(_Pause_Menu);
+
         _Score.gameObject.SetActive(false);
         _Lives.gameObject.SetActive(false);
         _GAME_OVER.gameObject.SetActive(false);
         _Restart.gameObject.SetActive(false);
+        _Pause_Menu.gameObject.SetActive(false);
         if (_Game_manager.Check_Coop())
         {
             _Score_2.gameObject.SetActive(false);
@@ -161,5 +172,5 @@ public class UI_Manager : MonoBehaviour
         }
         _GAME_OVER.color = new Color(1f,1f,1f);
         _Restart.gameObject.SetActive(true);
-    }    
+    }  
 }

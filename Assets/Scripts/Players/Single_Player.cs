@@ -17,7 +17,7 @@ public class Single_Player : Player
 
     protected override void Update()
     {
-        if (User_Control)
+        if (User_Control && !Game_Manager.IsPaused)
         {
             if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && Fire_enabled)
             {

@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
     //Associated objects
     protected GameObject _shield, _thruster, _damage1, _damage2, _damage3;
     protected Animator _anim;
-    protected int anim_Turn_Left_id, anim_Turn_Right_id;
+    protected int anim_Turn_Left_id, anim_Turn_Right_id; //ids for Animator variables
     //Associated audio
     protected AudioSource audio_source;
     [SerializeField]
@@ -43,9 +43,11 @@ public class Player : MonoBehaviour
     //Player stat
     protected int Player_health = 4;
     protected int Player_kills = 0;
-    //Triggers
-    protected bool thrust_on = false;
-    protected bool thrust_current = false;
+    //Triggers    
+    protected bool thrust_current = false; //current thrust state
+    protected bool thrust_prev = false; //stores previous thrust state for comparing (for prevention of excess changes in transform)   
+    protected bool turn_left_prev = false; //previous turn animation triggers (for prevention of excess changes in Animator)
+    protected bool turn_right_prev = false;
     protected bool PU_triple = false;
     protected bool PU_speed = false;
     //Collision counters for PU and fire cooldown
@@ -177,6 +179,9 @@ public class Player : MonoBehaviour
         _damage1.gameObject.SetActive(false);
         _damage2.gameObject.SetActive(false);
         _damage3.gameObject.SetActive(false);
+        //Animation triggers confirmation
+        _anim.SetBool(anim_Turn_Left_id, turn_left_prev);
+        _anim.SetBool(anim_Turn_Right_id, turn_right_prev);
         transform.rotation = Quaternion.Euler(0,0,0);
         StartCoroutine(Entrance_timer());
     }
@@ -266,7 +271,7 @@ public class Player : MonoBehaviour
         //Position limits
         transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.15f, 9.15f), Mathf.Clamp(transform.position.y, -3.50f, 5.67f), 0);        
         //Thruster scale change
-        if (thrust_on != thrust_current)
+        if (thrust_prev != thrust_current)
         {
             if (thrust_current)
             {
@@ -276,7 +281,7 @@ public class Player : MonoBehaviour
             {
                 _thruster.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             }
-            thrust_on = thrust_current;            
+            thrust_prev = thrust_current;            
         }       
     }
 
@@ -292,18 +297,22 @@ public class Player : MonoBehaviour
     //Managing Animator's parameters for turns
     protected void Turn_Animation(float right)
     {
-        if (right == 0)
+        if (right == 0 && (turn_left_prev || turn_right_prev))
         {
             _anim.SetBool(anim_Turn_Right_id, false);
             _anim.SetBool(anim_Turn_Left_id, false);
+            turn_left_prev = false;
+            turn_right_prev = false;
         }
-        else if (right > 0)
+        else if (right > 0 && !turn_right_prev)
         {
             _anim.SetBool(anim_Turn_Right_id, true);
+            turn_right_prev = true;
         }
-        else
+        else if (right < 0 && !turn_left_prev)
         {
             _anim.SetBool(anim_Turn_Left_id, true);
+            turn_left_prev = true;
         }
     }
 

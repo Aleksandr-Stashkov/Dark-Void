@@ -33,7 +33,7 @@ public class Coop_Player : Player
 
     protected override void Update()
     {
-        if (User_Control)
+        if (User_Control && !Game_Manager.IsPaused)
         {
             if ((Input.GetKeyDown(KeyCode.Space) && Player1 && Fire_enabled) || (Input.GetMouseButtonDown(0) && !Player1 && Fire_enabled))
             {
