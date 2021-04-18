@@ -5,13 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class Game_Manager : MonoBehaviour
 {
-    //Pause Menu components
-    private GameObject _Pause_Menu;
-    private Animator _anim;
-    private int anim_Unpaused_id;
+    private UI_Manager _UI_Manager;
     //General parameters
     private bool CoopMode = false;
-    private bool Restart = false;
+    private bool Restart_flag = false; //Restart at death
     public static bool IsPaused = false;
 
     void Start()
@@ -27,25 +24,30 @@ public class Game_Manager : MonoBehaviour
         
     void Update()
     {
-        if (Restart && Input.GetKeyUp(KeyCode.R) && !IsPaused)
+        if (Restart_flag && Input.GetKeyUp(KeyCode.R) && !IsPaused)
         {
             Reload();
         }
 
         if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Pause))
         {
-            Pause(IsPaused);
+            _UI_Manager.Pause(IsPaused);
         }
     }
 
-    private void Reload()
+    public void Reload()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    public void Load_Main_Menu()
+    {
+        SceneManager.LoadScene("Main_Menu");
+    }
+
     public void Restart_act()
     {
-        Restart = true;
+        Restart_flag = true;
     }
 
     public bool Check_Coop()
@@ -54,70 +56,15 @@ public class Game_Manager : MonoBehaviour
     }
 
     //Getting reference to the Pause Menu from UI Manager
-    public void Set_Pause_Menu(GameObject _Menu)
+    public void Set_UI_Manager(UI_Manager _UI)
     {
-        if (_Menu != null)
+        if (_UI != null)
         {
-            _Pause_Menu = _Menu;
-            _anim = _Pause_Menu.GetComponent<Animator>();
-            if (_anim == null)
-            {
-                Debug.LogError("Game Manager could not locate Pause Menu's animator.");
-            }
-            anim_Unpaused_id = Animator.StringToHash("Unpaused");
-            if (anim_Unpaused_id == 0)
-            {
-                Debug.LogWarning("Game Manager could not find Unpaused parameter of the Pause Menu animator.");
-            }
+            _UI_Manager = _UI;           
         }
         else
         {
-            Debug.LogWarning("Game Manager was handled an empty reference to Pause Menu.");
+            Debug.LogWarning("Game Manager was handled an empty reference to UI Manager.");
         }
-    }
-
-    public void Pause(bool IsActive)
-    {
-        if (IsActive)
-        {
-            _anim.SetTrigger(anim_Unpaused_id);
-            StartCoroutine(Deactivate_Pause());
-            IsPaused = false;
-            Time.timeScale = 1;
-            AudioListener.pause = false;
-        }
-        else
-        {
-            IsPaused = true;
-            Time.timeScale = 0;
-            AudioListener.pause = true;
-            _anim.SetTrigger(anim_Unpaused_id);
-            _Pause_Menu.SetActive(true);
-        }
-    }
-
-    private IEnumerator Deactivate_Pause()
-    {
-        yield return new WaitForSecondsRealtime(1f);
-        if (!IsPaused)
-        {
-            _Pause_Menu.SetActive(false);
-        }
-    }
-
-    public void Restart_Button()
-    {
-        Reload();
-    }
-
-    public void Main_Menu_Button()
-    {
-        SceneManager.LoadScene("Main_Menu");
-    }
-
-    public void Exit_Button()
-    {
-
-        Application.Quit();
-    }
+    }    
 }

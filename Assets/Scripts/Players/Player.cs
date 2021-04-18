@@ -199,7 +199,8 @@ public class Player : MonoBehaviour
             {
                 Entrance_Movement();
             }
-    }  
+    }
+
 
 
     protected virtual void Movement()
