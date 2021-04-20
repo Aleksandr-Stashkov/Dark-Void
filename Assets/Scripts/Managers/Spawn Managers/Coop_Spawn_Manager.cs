@@ -6,6 +6,7 @@ public class Coop_Spawn_Manager : Spawn_Manager
 {
     [HideInInspector]
     public Player _player_2;
+    
 
     protected override void Start()
     {
@@ -22,6 +23,8 @@ public class Coop_Spawn_Manager : Spawn_Manager
         }
 
         //Players entrance pause
+        t_player_entrance = 7f;
+        t_start_0 += t_player_entrance;
         _player.Set_t_entrance(t_player_entrance);
         _player_2.Set_t_entrance(t_player_entrance);
 

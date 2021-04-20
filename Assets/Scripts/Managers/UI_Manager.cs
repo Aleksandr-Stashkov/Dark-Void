@@ -13,7 +13,7 @@ public class UI_Manager : MonoBehaviour
     private Text _Score, _Score_2, _GAME_OVER;
     private Image _Lives, _Lives_2;
     private TMP_Text _Restart;
-    private GameObject _Pause_Menu;
+    private GameObject _Pause_Menu, _Controls;
     //Pause Menu components
     private Animator _anim_Pause;
     private int anim_Unpaused_id; //Animator parameter id
@@ -54,6 +54,9 @@ public class UI_Manager : MonoBehaviour
                     break;
                 case "Pause_Menu_panel":
                     _Pause_Menu = transform.GetChild(i).gameObject;
+                    break;
+                case "Controls_panel":
+                    _Controls = transform.GetChild(i).gameObject;
                     break;
                 default:
                     Debug.LogWarning("There is an unrecognized child of UI Canvas.");
@@ -106,6 +109,10 @@ public class UI_Manager : MonoBehaviour
             {
                 Debug.LogWarning("UI Manager could not locate Lives image 2.");
             }
+            if (_Controls == null)
+            {
+                Debug.LogWarning("UI Manager could not locate Controls panel.");
+            }
         }
 
         //Sending Pause Menu reference to Game Manager
@@ -133,7 +140,17 @@ public class UI_Manager : MonoBehaviour
         {
             _Score_2.gameObject.SetActive(false);
             _Lives_2.gameObject.SetActive(false);
-        }        
+            _Controls.gameObject.SetActive(false);
+        }
+
+        StartCoroutine(Controls_Display());
+    }
+
+    private IEnumerator Controls_Display()
+    {
+        _Controls.SetActive(true);
+        yield return new WaitForSeconds(120f);
+        _Controls.SetActive(false);
     }
 
     public void Trigger_UI()

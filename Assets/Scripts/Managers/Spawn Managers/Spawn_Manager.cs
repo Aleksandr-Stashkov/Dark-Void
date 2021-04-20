@@ -25,7 +25,7 @@ public class Spawn_Manager : MonoBehaviour
     protected GameObject _PU_shield;
     //Timeline
     protected float t_player_entrance = 5f; //time for player to reach its starting position
-    protected float t_start_0 = 5f;
+    protected float t_start_0 = 4f; //time of wave start after the player's entrance
     protected float t_wave_pause_0 = 3f; 
     protected float t_wave_0 = 30f;
     protected bool asteroid_trigger = false;
@@ -134,8 +134,6 @@ public class Spawn_Manager : MonoBehaviour
         {
             Debug.LogError("Spawn Manager could not locate PREFAB for Shield Power Up.");
         }
-
-        t_start_0 += t_player_entrance;
     }      
 
     //Asteroid spawn (trigger - asteroid's destruction launches Asteroid_destroyed)

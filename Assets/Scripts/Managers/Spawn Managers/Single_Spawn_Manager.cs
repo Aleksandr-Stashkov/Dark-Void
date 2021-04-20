@@ -15,6 +15,7 @@ public class Single_Spawn_Manager : Spawn_Manager
         }
 
         //Player entrance pause
+        t_start_0 += t_player_entrance;
         _player.Set_t_entrance(t_player_entrance);        
 
         if (_player.Alive())
