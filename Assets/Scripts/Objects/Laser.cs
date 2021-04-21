@@ -4,22 +4,20 @@ using UnityEngine;
 
 public class Laser : MonoBehaviour
 {
-    private float v = 12f;
-    //Player flag for Coop
-    private Player _player;
+    private float _velocity = 12f;    
+    private Player _playerSource;
 
-    void Start()
+    private void Start()
     {
-        //Parameter check
-        if (v <= 0)
+        if (_velocity <= 0)
         {
             Debug.LogWarning("Laser speed is equal to or less than 0.");
         }
     }
         
-    void Update()
+    private void Update()
     {
-        transform.Translate(transform.up * v * Time.deltaTime, Space.World);
+        transform.Translate(transform.up * _velocity * Time.deltaTime, Space.World);
 
         if (transform.position.y > 8f || transform.position.y < -8f || transform.position.x > 10f || transform.position.x < -10f){
             if (transform.parent.CompareTag("Fire"))
@@ -34,13 +32,13 @@ public class Laser : MonoBehaviour
         }
     }
 
-    public void SetPlayer(Player _player_ref)
+    public void SetPlayer(Player player)
     {
-        _player = _player_ref;
+        _playerSource = player;
     }
 
-    public void Player_add_score(int score)
+    public void AddScore(int score)
     {
-        _player.Kill_count(score);
+        _playerSource.Kill_count(score);
     }
 }

@@ -9,15 +9,15 @@ public class Single_Player : Player
         base.Start();
 
         //UI initial set
-        _UI_Manager.Score_update(Player_kills);
-        _UI_Manager.Lives_update(Player_health);
+        _UI_Manager.UpdateScore1(Player_kills);
+        _UI_Manager.UpdateLives1(Player_health);
         //Player initial set
         transform.position = new Vector3(0, -6f, 0);
     }
 
     protected override void Update()
     {
-        if (User_Control && !Game_Manager.IsPaused)
+        if (User_Control && !Game_Manager.isPaused)
         {
             if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && Fire_enabled)
             {
@@ -74,13 +74,13 @@ public class Single_Player : Player
     public override void Kill_count(int add)
     {
         base.Kill_count(add);
-        _UI_Manager.Score_update(Player_kills);
+        _UI_Manager.UpdateScore1(Player_kills);
     }
 
     public override void Take_Damage(int Damage)
     {
         base.Take_Damage(Damage);
 
-        _UI_Manager.Lives_update(Player_health);
+        _UI_Manager.UpdateLives1(Player_health);
     }
 }

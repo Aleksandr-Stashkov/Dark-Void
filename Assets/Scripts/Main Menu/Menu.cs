@@ -6,74 +6,114 @@ using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
-    private Text _Credits, _Single_score, _Coop_score;
-    private GameObject _Buttons, _Score_panel;
-    private bool credits_trigger = true;
-    private bool scores_trigger = false;
-    private string single, coop;
+    //Objects
+    private Text _txt_SingleScore, _txt_CoopScore;
+    private GameObject _pnl_Buttons, _pnl_Score, _txt_Credits;
+    //Display triggers
+    private bool _isCredits = false;
+    private bool _isScores = false;
+    //Score data
+    private string _singleScore, _coopScore;
 
     private void Start()
     {
+        Debug.Log("Loaded Main_Menu.");
+        
+        FindObjects();
+        //Initial settings
+        _txt_Credits.SetActive(false);
+        _pnl_Buttons.SetActive(true);
+        _pnl_Score.SetActive(false);
+        //Getting scores
+        _singleScore = PlayerPrefs.GetInt("Single",0).ToString();
+        _coopScore = PlayerPrefs.GetInt("Coop",0).ToString();        
+    }
+
+    private void FindObjects()
+    {
+        //variable for children search
+        Transform child;
 
         for (int i = 0; i < transform.childCount; i++)
         {
-            switch (transform.GetChild(i).name)
+            child = transform.GetChild(i);
+            switch (child.name)
             {
-                case "Credits":
-                    _Credits = transform.GetChild(i).GetComponent<Text>();
+                case "Credits_text":
+                    _txt_Credits = child.gameObject;
                     break;
-                case "Buttons":
-                    _Buttons = transform.GetChild(i).gameObject;
+                case "Buttons_panel":
+                    _pnl_Buttons = child.gameObject;
                     break;
-                case "Score Panel":
-                    _Score_panel = transform.GetChild(i).gameObject;
+                case "Score_panel":
+                    _pnl_Score = child.gameObject;
                     break;
             }
         }
-        if (_Score_panel == null)
+
+        if (_pnl_Score == null)
         {
             Debug.LogWarning("Main Menu could not locate Score panel.");
         }
-        for (int i = 0; i < _Score_panel.transform.childCount; i++)
+        else
         {
-            switch (_Score_panel.transform.GetChild(i).name)
+            for (int i = 0; i < _pnl_Score.transform.childCount; i++)
             {
-                case "Single_Score_text":
-                    _Single_score = _Score_panel.transform.GetChild(i).GetComponent<Text>();
-                    break;
-                case "Coop_Score_text":
-                    _Coop_score = _Score_panel.transform.GetChild(i).GetComponent<Text>();
-                    break;                
+                child = _pnl_Score.transform.GetChild(i);
+                switch (child.name)
+                {
+                    case "Single_Score_text":
+                        _txt_SingleScore = child.GetComponent<Text>();
+                        break;
+                    case "Coop_Score_text":
+                        _txt_CoopScore = child.GetComponent<Text>();
+                        break;
+                }
             }
         }
 
         //Check objects
-        if (_Credits == null)
+        if (_txt_Credits == null)
         {
             Debug.LogWarning("Main Menu could not locate Credits text.");
         }
-        if (_Buttons == null)
+        if (_pnl_Buttons == null)
         {
             Debug.LogWarning("Main Menu could not locate Buttons panel.");
         }
-        if (_Single_score == null)
+        if (_txt_SingleScore == null)
         {
             Debug.LogWarning("Main Menu could not locate Single Score text.");
         }
-        if (_Coop_score == null)
+        if (_txt_CoopScore == null)
         {
             Debug.LogWarning("Main Menu could not locate Coop Score text.");
         }
-
-        _Credits.gameObject.SetActive(false);
-        _Buttons.gameObject.SetActive(true);
-        _Score_panel.gameObject.SetActive(false);
-
-        //Getting scores
-        single = PlayerPrefs.GetInt("Single",0).ToString();
-        coop = PlayerPrefs.GetInt("Coop",0).ToString();        
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            if (_isScores)
+            {
+                BackFromPause_Button();
+            }
+            else
+            {
+                Exit_Button();
+            }
+        }
+    }
+
+    private IEnumerator CreditsDisplay()
+    {
+        _txt_Credits.SetActive(true);
+        yield return new WaitForSeconds(15f);
+        _txt_Credits.SetActive(false);
+        _isCredits = false;
+    }
+    
     public void Start_Button()
     {
         SceneManager.LoadScene("Level_01");
@@ -86,71 +126,48 @@ public class Menu : MonoBehaviour
 
     public void Scores_Button()
     {
-        _Buttons.SetActive(false);
-        _Score_panel.SetActive(true);
-        scores_trigger = true;
+        _isScores = true;
+        _pnl_Buttons.SetActive(false);
+        _pnl_Score.SetActive(true);       
 
-        _Single_score.text = single;
-        _Coop_score.text = coop;
+        _txt_SingleScore.text = _singleScore;
+        _txt_CoopScore.text = _coopScore;
+    }    
+
+    public void ClearSingleScore_Button()
+    {
+        PlayerPrefs.SetInt("Single", 0);
+        PlayerPrefs.Save();
+        _singleScore = "0";
+        _txt_SingleScore.text = _singleScore;
+    }
+
+    public void ClearCoopScore_Button()
+    {
+        PlayerPrefs.SetInt("Coop", 0);
+        PlayerPrefs.Save();
+        _coopScore = "0";
+        _txt_CoopScore.text = _coopScore;
+    }
+
+    public void BackFromPause_Button()
+    {
+        _pnl_Score.SetActive(false);
+       _isScores = false;
+        _pnl_Buttons.SetActive(true);        
     }
 
     public void Credits_Button()
     {
-        if (credits_trigger)
+        if (!_isCredits)
         {
-            credits_trigger = false;
-            StartCoroutine(Credits());
+            _isCredits = true;
+            StartCoroutine(CreditsDisplay());
         }
-    }
-
-    private IEnumerator Credits()
-    {
-        _Credits.gameObject.SetActive(true);
-        yield return new WaitForSeconds(15f);
-        _Credits.gameObject.SetActive(false);
-        credits_trigger = true;
     }
 
     public void Exit_Button()
     {
         Application.Quit();
-    }
-
-    public void Single_Score_Clear()
-    {
-        PlayerPrefs.SetInt("Single", 0);
-        PlayerPrefs.Save();
-        single = "0";
-        _Single_score.text = single;
-    }
-
-    public void Coop_Score_Clear()
-    {
-        PlayerPrefs.SetInt("Coop", 0);
-        PlayerPrefs.Save();
-        coop = "0";
-        _Coop_score.text = coop;
-    }
-
-    public void Back_Button()
-    {
-        _Score_panel.SetActive(false);
-        scores_trigger = false;
-        _Buttons.SetActive(true);        
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            if (scores_trigger)
-            {
-                Back_Button();
-            }
-            else
-            {
-                Exit_Button();
-            }
-        }
     }
 }

@@ -348,7 +348,7 @@ public class Player : MonoBehaviour
     {
         if (PU_triple == true)
         {
-            GameObject _new_triple = Instantiate(_triple_laser, transform.position, transform.rotation, _spawnManager._laser_cont.transform);
+            GameObject _new_triple = Instantiate(_triple_laser, transform.position, transform.rotation, _spawnManager.laserContainer.transform);
             Laser[] lasers = _new_triple.GetComponentsInChildren<Laser>();
             foreach (Laser laser in lasers)
             {
@@ -360,7 +360,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            GameObject _new_laser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _spawnManager._laser_cont.transform);
+            GameObject _new_laser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _spawnManager.laserContainer.transform);
             _new_laser.GetComponent<Laser>().SetPlayer(this);
             audio_source.PlayOneShot(audio_fire);
         }
@@ -446,7 +446,7 @@ public class Player : MonoBehaviour
           Take_Damage(Enemy_col_damage);
           if (Player_health <= 0)
           {
-             _UI_Manager.GAME_OVER();
+             _UI_Manager.GameOver();
              transform.gameObject.SetActive(false);
              return;
           }
@@ -467,7 +467,7 @@ public class Player : MonoBehaviour
             Take_Damage(Obj_col_damage);
             if (Player_health <= 0)
             {
-                _UI_Manager.GAME_OVER();
+                _UI_Manager.GameOver();
                 transform.gameObject.SetActive(false);
                 return;
             }

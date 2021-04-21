@@ -5,66 +5,74 @@ using UnityEngine.SceneManagement;
 
 public class Game_Manager : MonoBehaviour
 {
-    private UI_Manager _UI_Manager;
-    //General parameters
-    private bool CoopMode = false;
-    private bool Restart_flag = false; //Restart at death
-    public static bool IsPaused = false;
+    private UI_Manager _UI_Manager;    
+    private bool _isCoop = false;    
+    private bool _canRestart = false; //Restart by R button on death
+    
+    public static bool isPaused = false;
 
-    void Start()
+    private void Start()
     {
-        if (SceneManager.GetActiveScene().name.Substring(0,4) == "Coop")
-        {
-            CoopMode = true;
-        }
-        Debug.Log("Loaded " + SceneManager.GetActiveScene().name + ".");
-        IsPaused = false;
-        Time.timeScale = 1;        
-    }
+        IdentifyScene();
         
-    void Update()
+        isPaused = false;
+        Time.timeScale = 1;
+
+        Find_UI_Manager();
+    }
+
+    private void IdentifyScene()
     {
-        if (Restart_flag && Input.GetKeyUp(KeyCode.R) && !IsPaused)
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName.Substring(0, 4) == "Coop")
         {
-            Reload();
+            _isCoop = true;
         }
+        Debug.Log("Loaded " + sceneName + ".");
+    }
 
-        if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Pause))
+    private void Find_UI_Manager()
+    {
+        _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+        if (_UI_Manager == null)
         {
-            _UI_Manager.Pause(IsPaused);
-        }
-    }
-
-    public void Reload()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    public void Load_Main_Menu()
-    {
-        SceneManager.LoadScene("Main_Menu");
-    }
-
-    public void Restart_act()
-    {
-        Restart_flag = true;
-    }
-
-    public bool Check_Coop()
-    {
-        return CoopMode;
-    }
-
-    //Getting reference to the Pause Menu from UI Manager
-    public void Set_UI_Manager(UI_Manager _UI)
-    {
-        if (_UI != null)
-        {
-            _UI_Manager = _UI;           
+            Debug.LogWarning("Game Manager could not find Canvas.");
         }
         else
         {
-            Debug.LogWarning("Game Manager was handled an empty reference to UI Manager.");
+            _UI_Manager.SetGameManager(this);
         }
-    }    
+    }
+        
+    private void Update()
+    {
+        if (_canRestart && Input.GetKeyUp(KeyCode.R) && !isPaused)
+        {
+            ReloadScene();
+        }
+        if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Pause))
+        {
+            _UI_Manager.Pause(isPaused);
+        }
+    }
+
+    public void ReloadScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    public void AllowRestart()
+    {
+        _canRestart = true;
+    }
+
+    public bool IsCoop()
+    {
+        return _isCoop;
+    }
 }

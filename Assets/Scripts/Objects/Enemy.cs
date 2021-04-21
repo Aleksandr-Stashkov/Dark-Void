@@ -76,10 +76,10 @@ public class Enemy : Moving_Object
         {
             if (Random.value < 0.5f)
             {
-                Instantiate(_laser, transform.position - transform.up * 0.706f + transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), transform.parent.parent.GetComponent<Spawn_Manager>()._laser_cont.transform);
+                Instantiate(_laser, transform.position - transform.up * 0.706f + transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), transform.parent.parent.GetComponent<Spawn_Manager>().laserContainer.transform);
             }
             else {
-                Instantiate(_laser, transform.position - transform.up * 0.706f - transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), transform.parent.parent.GetComponent<Spawn_Manager>()._laser_cont.transform);
+                Instantiate(_laser, transform.position - transform.up * 0.706f - transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), transform.parent.parent.GetComponent<Spawn_Manager>().laserContainer.transform);
             }
             t_cooldown = Random.Range(0.8f * t_fire_avg, 1.2f * t_fire_avg);
             StartCoroutine(Fire_cooldown());
@@ -99,7 +99,7 @@ public class Enemy : Moving_Object
         {                     
             _Collider.enabled = false;
             other.gameObject.SetActive(false);
-            other.transform.GetComponent<Laser>().Player_add_score(1);
+            other.transform.GetComponent<Laser>().AddScore(1);
             alive = false;
             _Anim.SetTrigger("Enemy_dead");           
             audio_destruction.PlayOneShot(audio_destruction.clip);

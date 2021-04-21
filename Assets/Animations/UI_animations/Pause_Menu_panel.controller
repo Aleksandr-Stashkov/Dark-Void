@@ -9,7 +9,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: Unpaused
+    m_ConditionEvent: Pause
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 3538789806692453922}
@@ -34,7 +34,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: Unpaused
+    m_ConditionEvent: Pause
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 3603378542482118920}
@@ -59,7 +59,7 @@ AnimatorController:
   m_Name: Pause_Menu_panel
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: Unpaused
+  - m_Name: Pause
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0

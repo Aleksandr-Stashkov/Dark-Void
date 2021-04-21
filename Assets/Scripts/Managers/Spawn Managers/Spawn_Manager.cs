@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class Spawn_Manager : MonoBehaviour
 {
-    //Containers
-    [HideInInspector]
-    public GameObject _laser_cont, _enemy_cont, _PU_cont, _obj_cont;
-    //Main objects
-    [HideInInspector]
-    public AudioSource audio_background;
     [HideInInspector]
     public Player _player;
+    protected AudioSource _audioBackground;
+    //Containers
+    [HideInInspector]
+    public GameObject laserContainer;
+    private GameObject _enemyContainer, _powerUpContainer, _objectContainer;  
     //Prefabs
     [SerializeField]
     protected GameObject _enemy;
@@ -78,42 +77,42 @@ public class Spawn_Manager : MonoBehaviour
             switch (transform.GetChild(i).name)
             {
                 case "LaserContainer":
-                    _laser_cont = transform.GetChild(i).gameObject;
+                    laserContainer = transform.GetChild(i).gameObject;
                     break;
                 case "EnemyContainer":
-                    _enemy_cont = transform.GetChild(i).gameObject;
+                    _enemyContainer = transform.GetChild(i).gameObject;
                     break;
                 case "PUContainer":
-                    _PU_cont = transform.GetChild(i).gameObject;
+                    _powerUpContainer = transform.GetChild(i).gameObject;
                     break;
                 case "ObjectContainer":
-                    _obj_cont = transform.GetChild(i).gameObject;
+                    _objectContainer = transform.GetChild(i).gameObject;
                     break;                
                 default:
                     Debug.LogWarning("There is an unrecognized child of Spawn Manager.");
                     break;
             }
         }       
-        audio_background = GameObject.FindGameObjectWithTag("Audio_Manager").GetComponent<AudioSource>();
+        _audioBackground = GameObject.FindGameObjectWithTag("Audio_Manager").GetComponent<AudioSource>();
         //Objects check
-        if (_laser_cont == null)
+        if (laserContainer == null)
         {
             Debug.LogError("Spawn Manager could not locate Laser Container.");
         }       
-        if (_enemy_cont == null)
+        if (_enemyContainer == null)
         {
             Debug.LogError("Spawn Manager could not locate Enemy Container.");
         }        
-        if (_PU_cont == null)
+        if (_powerUpContainer == null)
         {
             Debug.LogError("Spawn Manager could not locate Power Up Container.");
         }       
-        if (_obj_cont == null)
+        if (_objectContainer == null)
         {
             Debug.LogError("Spawn Manager could not locate Object Container.");
         }        
         //Sound check
-        if (audio_background == null)
+        if (_audioBackground == null)
         {
             Debug.LogError("Spawn Manager could not locate Audio Manager.");
         }
@@ -143,22 +142,22 @@ public class Spawn_Manager : MonoBehaviour
         switch (dir)
         {
             case Wave_dir.Down:
-                GameObject _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _obj_cont.transform);
+                GameObject _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 _new_asteroid.GetComponent<Asteroid>().SetTrigger(trigger);
                 break;
             case Wave_dir.Up:
-                _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _obj_cont.transform);
+                _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 _new_asteroid.GetComponent<Asteroid>().SetTrigger(trigger);
                 break;
             case Wave_dir.Right:
-                _new_asteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _obj_cont.transform);
+                _new_asteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 _new_asteroid.GetComponent<Asteroid>().SetTrigger(trigger);
                 break;
             case Wave_dir.Left:
-                _new_asteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _obj_cont.transform);
+                _new_asteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 _new_asteroid.GetComponent<Asteroid>().SetTrigger(trigger);
                 break;
@@ -171,19 +170,19 @@ public class Spawn_Manager : MonoBehaviour
         switch (dir)
         {
             case Wave_dir.Down:
-                GameObject _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _obj_cont.transform);
+                GameObject _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
             case Wave_dir.Up:
-                _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _obj_cont.transform);
+                _new_asteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
             case Wave_dir.Right:
-                _new_asteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _obj_cont.transform);
+                _new_asteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
             case Wave_dir.Left:
-                _new_asteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _obj_cont.transform);
+                _new_asteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _objectContainer.transform);
                 _new_asteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
         }
@@ -195,19 +194,19 @@ public class Spawn_Manager : MonoBehaviour
         switch (dir)
         {
             case Wave_dir.Down:
-                GameObject _new_enemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _enemy_cont.transform);
+                GameObject _new_enemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _enemyContainer.transform);
                 _new_enemy.GetComponent<Enemy>().SetReturn(returnable);
                 break;
             case Wave_dir.Up:
-                _new_enemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _enemy_cont.transform);
+                _new_enemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _enemyContainer.transform);
                 _new_enemy.GetComponent<Enemy>().SetReturn(returnable);
                 break;
             case Wave_dir.Right:
-                _new_enemy = Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
+                _new_enemy = Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemyContainer.transform);
                 _new_enemy.GetComponent<Enemy>().SetReturn(returnable);
                 break;
             case Wave_dir.Left:
-                _new_enemy = Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
+                _new_enemy = Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemyContainer.transform);
                 _new_enemy.GetComponent<Enemy>().SetReturn(returnable);
                 break;
         }
@@ -218,16 +217,16 @@ public class Spawn_Manager : MonoBehaviour
         switch (dir)
         {
             case Wave_dir.Down:
-                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, _enemyContainer.transform);
                 break;
             case Wave_dir.Up:
-                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, _enemyContainer.transform);
                 break;
             case Wave_dir.Right:
-                Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemyContainer.transform);
                 break;
             case Wave_dir.Left:
-                Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemy_cont.transform);
+                Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, _enemyContainer.transform);
                 break;
         }
     }
@@ -587,7 +586,7 @@ public class Spawn_Manager : MonoBehaviour
     {
         while (Time.timeSinceLevelLoad < t_wave_end)
         {
-            Instantiate(_PU_triple, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, _PU_cont.transform);
+            Instantiate(_PU_triple, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, _powerUpContainer.transform);
             yield return new WaitForSeconds(Random.Range((1 - dt_PU_triple_dev) * dt_PU_triple, (1 + dt_PU_triple_dev) * dt_PU_triple));
         }
     }
@@ -595,7 +594,7 @@ public class Spawn_Manager : MonoBehaviour
     {
         while (Time.timeSinceLevelLoad < t_wave_end)
         {
-            Instantiate(_PU_player_speed, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, _PU_cont.transform);
+            Instantiate(_PU_player_speed, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, _powerUpContainer.transform);
             yield return new WaitForSeconds(Random.Range((1 - dt_PU_player_speed_dev) * dt_PU_player_speed, (1 + dt_PU_player_speed_dev) * dt_PU_player_speed));
         }
     }
@@ -603,7 +602,7 @@ public class Spawn_Manager : MonoBehaviour
     {
         while (Time.timeSinceLevelLoad < t_wave_end)
         {
-            Instantiate(_PU_shield, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, _PU_cont.transform);
+            Instantiate(_PU_shield, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, _powerUpContainer.transform);
             yield return new WaitForSeconds(Random.Range((1 - dt_PU_shield_dev) * dt_PU_shield, (1 + dt_PU_shield_dev) * dt_PU_shield));
         }
     }

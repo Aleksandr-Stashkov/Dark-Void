@@ -4,11 +4,9 @@ using UnityEngine;
 
 public class Moving_Object : MonoBehaviour
 {
-    //Movement
     protected float v = 2.5f;
-    protected Vector3 dir = Vector3.down;
-    //Return to the screen by a turnover
-    protected bool returnable = false;    
+    protected Vector3 dir = Vector3.down;    
+    protected bool _isReturnable = false; //Return to the screen by a turnover
 
     protected virtual void Start()
     {
@@ -42,7 +40,7 @@ public class Moving_Object : MonoBehaviour
         if ((dir == Vector3.left && transform.position.x < -22f) || (dir == Vector3.right && transform.position.x > 22f) ||
             (dir == Vector3.down && transform.position.y < -11.9f) || (dir == Vector3.up && transform.position.y > 15f))
         {
-            if (returnable)
+            if (_isReturnable)
             {
                 Start();
             }
@@ -56,6 +54,6 @@ public class Moving_Object : MonoBehaviour
     //Trigger object return function
     public void SetReturn(bool ret)
     {
-        returnable = ret;
+        _isReturnable = ret;
     }
 }

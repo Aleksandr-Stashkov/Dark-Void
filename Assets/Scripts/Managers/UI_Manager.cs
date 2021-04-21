@@ -6,319 +6,391 @@ using TMPro;
 
 public class UI_Manager : MonoBehaviour
 {
-    //Managers
-    private Game_Manager _Game_manager;
-    private bool Coop = false;
-    //UI elements
-    private Text _Score, _Score_2, _GAME_OVER;
-    private Image _Lives, _Lives_2;
-    private TMP_Text _Restart;
-    private GameObject _Pause_Menu, _Controls;
-    //Pause Menu components
+    //Game Manager
+    private Game_Manager _GameManager;
+    private bool _isCoop = false;
+    //Main UI elements
+    private GameObject _pnl_Controls, _tmp_Restart, _tmp_NewRecord;
+    private Text _txt_Score1, _txt_Score2, _txt_GameOver;
+    private Image _img_Lives1, _img_Lives2;
+    //Pause Menu
+    private GameObject _pnl_PauseMenu;
     private Animator _anim_Pause;
-    private int anim_Unpaused_id; //Animator parameter id
-    private bool Pause_Menu_act; //Interaction with buttons in Pause Menu
-    private bool Pause_dir; //Current direction of the Pause switch goal ()
+    private int _anim_ID_Pause; //Animator parameter id
+    private float _anim_Length;
+    private bool _isPauseMenuActive; //Interaction with buttons in Pause Menu
+    private bool _isBeingPaused; //Current direction of the Pause change (for correct animations and triggers)
     //UI assets
     [SerializeField]
-    private Sprite[] _liveSprite;
+    private Sprite[] _livesSprites;
     //Display parameters
-    private float t_GameOver_reveal = 2f;
-    //Score saving
-    private int score1, score2;
-    private int record;
+    private float _t_GameOverReveal = 2f;
+    //Score data
+    private int _score1, _score2;
+    private int _record;
+    private bool _isNewRecord = false;
 
     void Start()
     {
-        _Game_manager = GameObject.FindGameObjectWithTag("GameController").GetComponent<Game_Manager>();
-        //Identifying child UI elements
-        for (int i = 0; i < transform.childCount; i++) {
-            switch (transform.GetChild(i).name) {
+        FindElements();        
+        //Getting record score
+        if (_isCoop)
+        {
+           _record = PlayerPrefs.GetInt("Coop",0);            
+        }
+        else
+        {
+            _record = PlayerPrefs.GetInt("Single",0);           
+        }
+
+        Initial_UI_Setting();
+
+        if (_isCoop)
+        {
+            StartCoroutine(ControlsDisplay());
+        }
+    }
+
+    private void FindElements()
+    {
+        Transform child;
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            child = transform.GetChild(i);
+            switch (child.name)
+            {
                 case "Score_text":
-                    _Score = transform.GetChild(i).GetComponent<Text>();
+                    _txt_Score1 = child.GetComponent<Text>();
                     break;
-                case "Score_text_2":
-                    _Score_2 = transform.GetChild(i).GetComponent<Text>();
+                case "Score2_text":
+                    _txt_Score2 = child.GetComponent<Text>();
                     break;
                 case "Lives_image":
-                    _Lives = transform.GetChild(i).GetComponent<Image>();
+                    _img_Lives1 = child.GetComponent<Image>();
                     break;
-                case "Lives_image_2":
-                    _Lives_2 = transform.GetChild(i).GetComponent<Image>();
+                case "Lives2_image":
+                    _img_Lives2 = child.GetComponent<Image>();
                     break;
-                case "GAME_OVER_text":
-                    _GAME_OVER = transform.GetChild(i).GetComponent<Text>();
+                case "GameOver_text":
+                    _txt_GameOver = child.GetComponent<Text>();
                     break;
                 case "Restart_TMP":
-                    _Restart = transform.GetChild(i).GetComponent<TMP_Text>();
+                    _tmp_Restart = child.gameObject;
+                    break;
+                case "NewRecord_TMP":
+                    _tmp_NewRecord = child.gameObject;
                     break;
                 case "Pause_Menu_panel":
-                    _Pause_Menu = transform.GetChild(i).gameObject;
+                    _pnl_PauseMenu = child.gameObject;
                     break;
                 case "Controls_panel":
-                    _Controls = transform.GetChild(i).gameObject;
-                    break;
+                    _pnl_Controls = child.gameObject;
+                    break;                
                 default:
                     Debug.LogWarning("There is an unrecognized child of UI Canvas.");
                     break;
             }
         }
-        if (_Pause_Menu == null)
+
+        if (_pnl_PauseMenu == null)
         {
             Debug.LogWarning("UI Manager could not locate Pause Menu panel.");
         }
-        _anim_Pause = _Pause_Menu.GetComponent<Animator>();
-        anim_Unpaused_id = Animator.StringToHash("Unpaused");
-        //UI elements check
-        if (_Game_manager == null)
+        else
+        {
+            _anim_Pause = _pnl_PauseMenu.GetComponent<Animator>();
+            _anim_ID_Pause = Animator.StringToHash("Pause");
+            _anim_Length = _anim_Pause.runtimeAnimatorController.animationClips[0].length;
+        }
+        
+        if (_GameManager == null)
         {
             Debug.LogError("UI Manager could not locate Game Manager.");
         }
-        Coop = _Game_manager.Check_Coop();
-        if (_Score == null)
+        else
         {
-            Debug.LogWarning("UI Manager could not locate Score text.");
+            _isCoop = _GameManager.IsCoop();
         }
-        if (_Lives == null)
+        //Check elements
+        if (_txt_Score1 == null)
         {
-            Debug.LogWarning("UI Manager could not locate Lives image.");
+            Debug.LogWarning("UI Manager could not locate Score1 text.");
         }
-        if (_GAME_OVER == null)
+        if (_img_Lives1 == null)
         {
-            Debug.LogWarning("UI Manager could not locate GAME OVER text.");
+            Debug.LogWarning("UI Manager could not locate Lives1 image.");
         }
-        if(_Restart == null)
+        if (_txt_GameOver == null)
+        {
+            Debug.LogWarning("UI Manager could not locate Game Over text.");
+        }
+        if (_tmp_Restart == null)
         {
             Debug.LogWarning("UI Manager could not locate Restart text.");
-        }        
+        }
+        if (_tmp_NewRecord == null)
+        {
+            Debug.LogWarning("UI Manager could not locate New Record text.");
+        }
         if (_anim_Pause == null)
         {
             Debug.LogError("UI Manager could not locate Pause Menu's animator.");
-        }        
-        if (anim_Unpaused_id == 0)
-        {
-            Debug.LogWarning("UI Manager could not find Unpaused parameter of the Pause Menu animator.");
         }
-        if (Coop)
+        if (_anim_ID_Pause == 0)
         {
-            if (_Score_2 == null)
+            Debug.LogWarning("UI Manager could not find Pause parameter of the Pause Menu animator.");
+        }
+        if (_isCoop)
+        {
+            if (_txt_Score2 == null)
             {
-                Debug.LogWarning("UI Manager could not locate Score text 2.");
+                Debug.LogWarning("UI Manager could not locate Score2 text.");
             }
-            if (_Lives_2 == null)
+            if (_img_Lives2 == null)
             {
-                Debug.LogWarning("UI Manager could not locate Lives image 2.");
+                Debug.LogWarning("UI Manager could not locate Lives2 image.");
             }
-            if (_Controls == null)
+            if (_pnl_Controls == null)
             {
                 Debug.LogWarning("UI Manager could not locate Controls panel.");
             }
         }
+    }
 
-        //Sending Pause Menu reference to Game Manager
-        _Game_manager.Set_UI_Manager(this);
-        //Getting record score
-        if (Coop)
+    private void Initial_UI_Setting()
+    {
+        _txt_Score1.gameObject.SetActive(false);
+        _img_Lives1.gameObject.SetActive(false);
+        _txt_GameOver.gameObject.SetActive(false);
+        _tmp_Restart.SetActive(false);
+        _tmp_NewRecord.SetActive(false);
+        _pnl_PauseMenu.SetActive(false);
+        _isPauseMenuActive = false;
+        _isBeingPaused = false;
+        _isNewRecord = false;
+        _score1 = 0;
+        _score2 = 0;
+
+        if (_isCoop)
         {
-            record = PlayerPrefs.GetInt("Coop",0);            
+            _txt_Score2.gameObject.SetActive(false);
+            _img_Lives2.gameObject.SetActive(false);
+            _pnl_Controls.SetActive(false);
+        }
+    }    
+
+    private void UpdateRecord(int newRecord)
+    {
+        if (!_isNewRecord)
+        {
+            _isNewRecord = true;
+            StartCoroutine(NewRecordDisplay());            
+        }
+
+        if (_isCoop)
+        {
+            PlayerPrefs.SetInt("Coop", newRecord);
         }
         else
         {
-            record = PlayerPrefs.GetInt("Single",0);           
+            PlayerPrefs.SetInt("Single", newRecord);
         }
-
-        _Score.gameObject.SetActive(false);
-        _Lives.gameObject.SetActive(false);
-        _GAME_OVER.gameObject.SetActive(false);
-        _Restart.gameObject.SetActive(false);
-        _Pause_Menu.gameObject.SetActive(false);
-        Pause_Menu_act = false;
-        Pause_dir = false;
-        score1 = 0;
-        score2 = 0;
-        if (Coop)
-        {
-            _Score_2.gameObject.SetActive(false);
-            _Lives_2.gameObject.SetActive(false);
-            _Controls.gameObject.SetActive(false);
-        }
-
-        StartCoroutine(Controls_Display());
+        PlayerPrefs.Save();       
     }
 
-    private IEnumerator Controls_Display()
+    private IEnumerator NewRecordDisplay()
     {
-        _Controls.SetActive(true);
+        _tmp_NewRecord.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        _tmp_NewRecord.SetActive(false);
+    }
+
+    private IEnumerator ControlsDisplay()
+    {
+        _pnl_Controls.SetActive(true);
         yield return new WaitForSeconds(120f);
-        _Controls.SetActive(false);
+        _pnl_Controls.SetActive(false);
+    }
+    //Gradual reveal of the Game Over text
+    private IEnumerator GameOverReveal()
+    {
+        float step = 1f;
+        float fullBrightness = _t_GameOverReveal * 10;
+
+        _txt_GameOver.gameObject.SetActive(true);
+        while (step <= fullBrightness)
+        {
+            _txt_GameOver.color = new Color(step / fullBrightness, step / fullBrightness, step / fullBrightness);
+            step += 1f;
+            yield return new WaitForSeconds(0.01f);
+        }
+
+        _txt_GameOver.color = new Color(1f, 1f, 1f);
+        _tmp_Restart.SetActive(true);
+    }
+
+    private IEnumerator ActivatePause()
+    {
+        yield return new WaitForSecondsRealtime(_anim_Length);
+        if (_isBeingPaused)
+        {
+            _isPauseMenuActive = true;
+        }
+    }
+
+    private IEnumerator DeactivatePause()
+    {
+        yield return new WaitForSecondsRealtime(_anim_Length);
+        if (!_isBeingPaused)
+        {
+            Time.timeScale = 1;
+            Game_Manager.isPaused = false;
+            AudioListener.pause = false;
+            _pnl_PauseMenu.SetActive(false);
+        }
+    }
+
+    public void SetGameManager(Game_Manager gameManager)
+    {
+        if (gameManager == null)
+        {
+            Debug.LogWarning("UI Manager was handled an empty Game Manager.");
+        }
+        else
+        {
+            _GameManager = gameManager;
+        }
     }
 
     public void Trigger_UI()
-    {
-        Debug.Log("UI_triggered");
-        _Score.gameObject.SetActive(true);
-        _Lives.gameObject.SetActive(true);
-        if (Coop)
+    {        
+        _txt_Score1.gameObject.SetActive(true);
+        _img_Lives1.gameObject.SetActive(true);
+        if (_isCoop)
         {
-            _Score_2.gameObject.SetActive(true);
-            _Lives_2.gameObject.SetActive(true);
+            _txt_Score2.gameObject.SetActive(true);
+            _img_Lives2.gameObject.SetActive(true);
         }
+
+        Debug.Log("UI triggered");
     }
 
-    public void Score_update(int new_score)
+    public void UpdateScore1(int newScore)
     {
-        score1 = new_score;
-        if (Coop)
+        _score1 = newScore;
+        if (_isCoop)
         {
-            _Score.text = new_score.ToString();
+            _txt_Score1.text = newScore.ToString();
         }
         else
         {
-            _Score.text = "Score: " + new_score.ToString();
+            _txt_Score1.text = "Score: " + newScore.ToString();
+        }
+
+        if(_score1+_score2 > _record)
+        {
+            UpdateRecord(_score1+_score2);
         }
     }
-    public void Score_update_2(int new_score)
+    public void UpdateScore2(int newScore)
     {
-        score2 = new_score;
-        _Score_2.text = new_score.ToString();
+        _score2 = newScore;
+        _txt_Score2.text = newScore.ToString();
+
+        if (_score1 + _score2 > _record)
+        {
+            UpdateRecord(_score1+_score2);
+        }
     }
 
-    public void Lives_update(int lives)
+    public void UpdateLives1(int lives)
     {
         if (lives <= 0)
         {
-            _Lives.sprite = _liveSprite[0];
+            _img_Lives1.sprite = _livesSprites[0];
         }
         else
         {
-            _Lives.sprite = _liveSprite[lives - 1];
+            _img_Lives1.sprite = _livesSprites[lives - 1];
         }
     }
-    public void Lives_update_2(int lives)
+    public void UpdateLives2(int lives)
     {
         if (lives <= 0)
         {
-            _Lives_2.sprite = _liveSprite[0];
+            _img_Lives2.sprite = _livesSprites[0];
         }
         else
         {
-            _Lives_2.sprite = _liveSprite[lives - 1];
+            _img_Lives2.sprite = _livesSprites[lives - 1];
         }
     }
 
-    public void GAME_OVER()
+    public void GameOver()
     {
-        StartCoroutine(GameOver_text());
-        _Game_manager.Restart_act();
-    }
+        StartCoroutine(GameOverReveal());
+        _GameManager.AllowRestart();
+    }    
 
-    //Gradual reveal of the Game Over text
-    private IEnumerator GameOver_text()
+    public void Pause(bool isActive)
     {
-        float bright = 1f;
-        _GAME_OVER.gameObject.SetActive(true);
-        while (bright <= t_GameOver_reveal*10)
-        {
-            _GAME_OVER.color = new Color(bright/(10*t_GameOver_reveal), bright/(10*t_GameOver_reveal), bright/(10*t_GameOver_reveal));
-            bright += 1f;
-            yield return new WaitForSeconds(0.01f);
-        }
-        _GAME_OVER.color = new Color(1f,1f,1f);
-        _Restart.gameObject.SetActive(true);
-    }
+        _isBeingPaused = !_isBeingPaused;
 
-    public void Pause(bool IsActive)
-    {
-        Pause_dir = !Pause_dir;
-        if (IsActive)
+        if (isActive)
         {
-            _anim_Pause.SetTrigger(anim_Unpaused_id);
-            Pause_Menu_act = false;           
-            StartCoroutine(Deactivate_Pause());
+            _anim_Pause.SetTrigger(_anim_ID_Pause);
+            _isPauseMenuActive = false;
+            
+            StartCoroutine(DeactivatePause());
         }
         else
         {
-            Game_Manager.IsPaused = true;
+            Game_Manager.isPaused = true;
             Time.timeScale = 0;
             AudioListener.pause = true;
-            if (_Pause_Menu.activeSelf)
+            //Differnce between reverting the animation or starting it
+            if (_pnl_PauseMenu.activeSelf)
             {
-                _anim_Pause.SetTrigger(anim_Unpaused_id);
+                _anim_Pause.SetTrigger(_anim_ID_Pause);
             }
             else
             {
-                _Pause_Menu.SetActive(true);
+                _pnl_PauseMenu.SetActive(true);
             }
-            StartCoroutine(Activate_Pause());
-        }
-    }
 
-    private IEnumerator Activate_Pause()
-    {
-        yield return new WaitForSecondsRealtime(1f);
-        if (Pause_dir)
-        {
-            Pause_Menu_act = true;
+            StartCoroutine(ActivatePause());
         }
-    }
+    }    
 
-    private IEnumerator Deactivate_Pause()
+    public void PauseResume_Button()
     {
-        yield return new WaitForSecondsRealtime(1f);
-        if (!Pause_dir)
-        {
-            Time.timeScale = 1;
-            Game_Manager.IsPaused = false;
-            AudioListener.pause = false;
-            _Pause_Menu.SetActive(false);
-        }
-    }
-
-    public void Pause_Resume_Button()
-    {
-        if (Pause_Menu_act)
+        if (_isPauseMenuActive)
         {
             Pause(true);
         }
     }
 
-    public void Pause_Restart_Button()
+    public void PauseRestart_Button()
     {
-        if (Pause_Menu_act)
+        if (_isPauseMenuActive)
         {
-            _Game_manager.Reload();
+             _GameManager.ReloadScene();
         }
     }
 
-    public void Pause_Main_Menu_Button()
+    public void PauseMainMenu_Button()
     {
-        if (Pause_Menu_act)
+        if (_isPauseMenuActive)
         {
-            _Game_manager.Load_Main_Menu();
+             _GameManager.LoadMainMenu();
         }
     }
 
-    public void Pause_Exit_Button()
+    public void PauseExit_Button()
     {
-        if (Pause_Menu_act)
+        if (_isPauseMenuActive)
         {
             Application.Quit();
         }
-    }
-
-    private void OnDisable()
-    {
-        if(score1 + score2 > record)
-        {
-            if (Coop)
-            { 
-                PlayerPrefs.SetInt("Coop", score1 + score2);
-            }
-            else
-            {
-                PlayerPrefs.SetInt("Single", score1);
-            }
-            PlayerPrefs.Save();
-        }
-    }
+    }    
 }

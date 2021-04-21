@@ -61,7 +61,7 @@ public class Coop_Spawn_Manager : Spawn_Manager
     //Main wave sequaence
     protected override IEnumerator Main_Timeline()
     {       
-        audio_background.PlayDelayed(t_start_0 / 4);
+        _audioBackground.PlayDelayed(t_start_0 / 4);
         while (_player.Alive() && _player_2.Alive())
         {
             yield return StartCoroutine(Pos_range(t_start_0 + t_wave_0, t_start_0, t_wave_pause_0, dt_enemy_0, Wave_dir.Down, PU_0));

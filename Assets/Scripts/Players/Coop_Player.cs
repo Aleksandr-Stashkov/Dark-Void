@@ -16,16 +16,16 @@ public class Coop_Player : Player
         if (Player1)
         {
             //UI initial set
-            _UI_Manager.Score_update(Player_kills);
-            _UI_Manager.Lives_update(Player_health);
+            _UI_Manager.UpdateScore1(Player_kills);
+            _UI_Manager.UpdateLives1(Player_health);
             //Player 1 initial set
             transform.position = new Vector3(-5f, -6f, 0);                     
         }
         else
         {
             //UI initial set
-            _UI_Manager.Score_update_2(Player_kills);
-            _UI_Manager.Lives_update_2(Player_health);
+            _UI_Manager.UpdateScore2(Player_kills);
+            _UI_Manager.UpdateLives2(Player_health);
             //Player 2 initial set
             transform.position = new Vector3(5f, -6f, 0);            
         }
@@ -33,7 +33,7 @@ public class Coop_Player : Player
 
     protected override void Update()
     {
-        if (User_Control && !Game_Manager.IsPaused)
+        if (User_Control && !Game_Manager.isPaused)
         {
             if ((Input.GetKeyDown(KeyCode.Space) && Player1 && Fire_enabled) || (Input.GetMouseButtonDown(0) && !Player1 && Fire_enabled))
             {
@@ -104,11 +104,11 @@ public class Coop_Player : Player
         base.Kill_count(add);
         if (Player1)
         {
-            _UI_Manager.Score_update(Player_kills);
+            _UI_Manager.UpdateScore1(Player_kills);
         }
         else
         {
-            _UI_Manager.Score_update_2(Player_kills);
+            _UI_Manager.UpdateScore2(Player_kills);
         }
     }
 
@@ -118,11 +118,11 @@ public class Coop_Player : Player
 
         if (Player1)
         {
-            _UI_Manager.Lives_update(Player_health);
+            _UI_Manager.UpdateLives1(Player_health);
         }
         else
         {
-            _UI_Manager.Lives_update_2(Player_health);
+            _UI_Manager.UpdateLives2(Player_health);
         }
     }
 
