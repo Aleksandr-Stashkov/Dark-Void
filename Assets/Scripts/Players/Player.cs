@@ -4,277 +4,327 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    //Managers
-    protected Spawn_Manager _spawnManager;
+    private Spawn_Manager _spawnManager;
     protected UI_Manager _UI_Manager;
     //Associated objects
-    protected GameObject _shield, _thruster, _damage1, _damage2, _damage3;
-    protected Animator _anim;
-    protected int anim_Turn_Left_id, anim_Turn_Right_id; //ids for Animator variables
-    //Associated audio
-    protected AudioSource audio_source;
+    private GameObject _shield, _thruster, _damage1, _damage2, _damage3;    
+    private AudioSource _audio_Source;
     [SerializeField]
-    protected AudioClip audio_fire, audio_powerup, audio_damage;
-    //Prefabs
+    private AudioClip _audio_Fire, _audio_PowerUp, _audio_Damage;    
     [SerializeField]
-    protected GameObject _laser;
+    private GameObject _laser;
     [SerializeField]
-    protected GameObject _triple_laser;
-
+    private GameObject _tripleLaser;
     //Movement
-    protected bool User_Control = false;
-    protected bool rotation_fix = true;
-    [HideInInspector]
-    public float t_entrance = 0f; //time for reaching the starting position
-    protected float v_side = 6f;
-    protected float v_for = 8f;
-    protected float v_back = 4.5f;
-    protected float v_speedup = 1.5f; //times of the normal speed
-    protected float speedup_time = 5f; //active time of speedup PU
-    protected enum Direction {Up, Down, Right, Left};
-    Direction forward = Direction.Up; //Forward direction
+    protected bool _isUserControlled = false;
+    protected bool _isRotationOff = true;
+    protected float _playerEntranceDuration = 0f;
+    private float _sidewardSpeed = 6f;
+    private float _forwardSpeed = 8f;
+    private float _backwardSpeed = 4.5f;
+    private bool _isSpedUp = false;
+    private float _speedUpFactor = 1.5f;
+    private float _speedUpDuration = 5f;
+    private enum PlayerDirection {up, down, right, left};
+    private PlayerDirection _forwardDirection = PlayerDirection.up;
     //Fire
-    protected bool Fire_enabled = true;
-    protected float t_laser_cooldown = 0.1f;
-    protected float triple_laser_time = 5f;  //active time of triple laser PU
+    protected bool _isFireEnabled = true;
+    private float _laserCooldownDuration = 0.1f;
+    private bool _isTripleFire = false;
+    private float _tripleFireDuration = 5f;
     //Damage
-    protected int Enemy_col_damage = 1;
-    protected int Obj_col_damage = 1;
+    private int _damageOnEnemyCollision = 1;
+    private int _damageOnObjectCollision = 1;
     //Player stat
-    protected int Player_health = 4;
-    protected int Player_kills = 0;
-    //Triggers    
-    protected bool thrust_current = false; //current thrust state
-    protected bool thrust_prev = false; //stores previous thrust state for comparing (for prevention of excess changes in transform)   
-    protected bool turn_left_prev = false; //previous turn animation triggers (for prevention of excess changes in Animator)
-    protected bool turn_right_prev = false;
-    protected bool PU_triple = false;
-    protected bool PU_speed = false;
-    //Collision counters for PU and fire cooldown
-    protected int Fire_cooldown_count = 0;
-    protected int PU_Triple_count = 0;
-    protected int PU_speed_count = 0;
+    protected int _lives = 4;
+    protected int _score = 0;
+    //Animation    
+    private Animator _anim_Turning;
+    private int _anim_ID_TurnLeft, _anim_ID_TurnRight; //ids for Animator variables
+    private bool _isThrustOn = false;
+    private bool _wasThrustOn = false; //for prevention of excess changes in transform   
+    private bool _wasTurningLeft = false; //previous turn animation triggers (for prevention of excess changes in Animator)
+    private bool _wasTurningRight = false;
+    //Collision counters
+    private int _fireCooldownCount = 0;
+    private int _tripleFireCount = 0;
+    private int _speedUpCount = 0;
 
-    protected virtual void Start()
+    private void Start()
     {
-        _spawnManager = GameObject.FindGameObjectWithTag("Spawn_Manager").GetComponent<Spawn_Manager>();
-        if (_spawnManager == null)
-        {
-            Debug.LogError("Player could not locate Spawn Manager.");
-        }
+        FindObjects();
+        CheckParameters();
+
+        InitialSetting();
+        
+        StartCoroutine(EntranceTimer());
+    }
+
+    private void FindObjects()
+    {
         _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
-        _anim = GetComponent<Animator>();
-        if (_anim == null)
+        _anim_Turning = GetComponent<Animator>();
+        if (_anim_Turning == null)
         {
             Debug.LogError("Player could not locate its animator.");
         }
-        anim_Turn_Left_id = Animator.StringToHash("Turn_Left");
-        anim_Turn_Right_id = Animator.StringToHash("Turn_Right");
-        audio_source = GetComponent<AudioSource>();
-        //Identifying child objects
-        for (int i=0; i < transform.childCount; i++)
+        _anim_ID_TurnLeft = Animator.StringToHash("Turn_Left");
+        _anim_ID_TurnRight = Animator.StringToHash("Turn_Right");
+        _audio_Source = GetComponent<AudioSource>();
+
+        Transform child;
+        for (int i = 0; i < transform.childCount; i++)
         {
-            switch (transform.GetChild(i).name)
+            child = transform.GetChild(i);
+            switch (child.name)
             {
                 case "Shield":
-                    _shield = transform.GetChild(i).gameObject;
+                    _shield = child.gameObject;
                     break;
                 case "Fire_1":
-                    _damage1 = transform.GetChild(i).gameObject;
+                    _damage1 = child.gameObject;
                     break;
                 case "Fire_2":
-                    _damage2 = transform.GetChild(i).gameObject;
+                    _damage2 = child.gameObject;
                     break;
                 case "Fire_3":
-                    _damage3 = transform.GetChild(i).gameObject;
+                    _damage3 = child.gameObject;
                     break;
                 case "Thruster":
-                    _thruster = transform.GetChild(i).gameObject;
+                    _thruster = child.gameObject;
                     break;
                 default:
                     Debug.LogWarning("There is an unrecognized child of Player.");
                     break;
             }
         }
-        //Objects check             
-        if (_UI_Manager == null) {
-            Debug.LogWarning("Player could not obtain link to UI Canvas.");
-        }        
-        if (audio_source == null)
+
+        CheckObjects();
+    }
+
+    private void CheckObjects()
+    {
+        if (_spawnManager == null)
         {
-            Debug.LogWarning("Player could not locate its audio source.");
+            Debug.LogError("Player could not locate Spawn Manager.");
         }
-        if (audio_fire == null)
+        if (_UI_Manager == null)
         {
-            Debug.LogWarning("Player could not locate fire audio.");
+            Debug.LogError("Player could not obtain link to UI Canvas.");
         }
-        if (audio_powerup == null)
+        if (_audio_Source == null)
         {
-            Debug.LogWarning("Player could not locate powerup audio.");
+            Debug.LogError("Player could not locate its audio source.");
         }
-        if (audio_damage == null)
+        if (_audio_Fire == null)
         {
-            Debug.LogWarning("Player could not locate damage audio.");
+            Debug.LogError("Player could not locate fire audio.");
         }
-        if (anim_Turn_Left_id == 0)
+        if (_audio_PowerUp == null)
         {
-            Debug.LogWarning("Player's animator could not find Turn_Left parameter.");
+            Debug.LogError("Player could not locate powerup audio.");
         }
-        if (anim_Turn_Right_id == 0)
+        if (_audio_Damage == null)
         {
-            Debug.LogWarning("Player's animator could not find Turn_Right parameter.");
+            Debug.LogError("Player could not locate damage audio.");
+        }
+        if (_anim_ID_TurnLeft == 0)
+        {
+            Debug.LogError("Player's animator could not find Turn_Left parameter.");
+        }
+        if (_anim_ID_TurnRight == 0)
+        {
+            Debug.LogError("Player's animator could not find Turn_Right parameter.");
         }
         if (_laser == null)
         {
             Debug.LogError("Player could not locate PREFAB for Laser.");
         }
-        if (_triple_laser == null)
+        if (_tripleLaser == null)
         {
             Debug.LogError("Player could not locate PREFAB for Triple Laser.");
-        }        
+        }
         if (_shield == null)
         {
             Debug.LogError("Player could not locate Shield.");
         }
         if (_thruster == null)
         {
-            Debug.LogError("Player could not locate Fire3.");
+            Debug.LogError("Player could not locate thruster.");
         }
         if (_damage1 == null)
         {
-            Debug.LogError("Player could not locate Fire1.");
+            Debug.LogError("Player could not locate Damage Fire 1.");
         }
         if (_damage2 == null)
         {
-            Debug.LogError("Player could not locate Fire2.");
+            Debug.LogError("Player could not locate Damage Fire 2.");
         }
         if (_damage3 == null)
         {
-            Debug.LogError("Player could not locate Fire3.");
+            Debug.LogError("Player could not locate Damage Fire 3.");
         }
-        //Parameters check
-        if (v_side <= 0)
+    }
+
+    private void CheckParameters()
+    {
+        if (_sidewardSpeed <= 0)
         {
             Debug.LogWarning("Player horizontal speed is equal to or less than 0.");
         }
-        if (v_for <= 0)
+        if (_forwardSpeed <= 0)
         {
             Debug.LogWarning("Player forward speed is equal to or less than 0.");
         }
-        if (v_back <= 0)
+        if (_backwardSpeed <= 0)
         {
             Debug.LogWarning("Player backward speed is equal to or less than 0.");
-        }        
-        if (Player_health <= 0)
+        }
+        if (_lives <= 0)
         {
             Debug.LogError("Player health is set below 1.");
         }
-        if (User_Control)
+        if (_isUserControlled)
         {
             Debug.LogWarning("User will control the Player from the start.");
         }
-       
-        //Player initial set
-        _shield.gameObject.SetActive(false);
-        _damage1.gameObject.SetActive(false);
-        _damage2.gameObject.SetActive(false);
-        _damage3.gameObject.SetActive(false);
-        //Animation triggers confirmation
-        _anim.SetBool(anim_Turn_Left_id, turn_left_prev);
-        _anim.SetBool(anim_Turn_Right_id, turn_right_prev);
-        transform.rotation = Quaternion.Euler(0,0,0);
-        StartCoroutine(Entrance_timer());
     }
 
-    //Events related to entrance pause
-    protected virtual IEnumerator Entrance_timer()
+    protected virtual void InitialSetting()
     {
-        yield return new WaitForSeconds(t_entrance);
-        User_Control = true;
+        _shield.SetActive(false);
+        _damage1.SetActive(false);
+        _damage2.SetActive(false);
+        _damage3.SetActive(false);
+
+        _anim_Turning.SetBool(_anim_ID_TurnLeft, _wasTurningLeft);
+        _anim_Turning.SetBool(_anim_ID_TurnRight, _wasTurningRight);
+
+        transform.rotation = Quaternion.Euler(0, 0, 0);
+    }
+    
+    protected virtual IEnumerator EntranceTimer()
+    {
+        yield return new WaitForSeconds(_playerEntranceDuration);
+        _isUserControlled = true;
     }
 
     protected virtual void Update()
     {
-            if (Time.timeSinceLevelLoad <= t_entrance)
+            if (Time.timeSinceLevelLoad <= _playerEntranceDuration)
             {
-                Entrance_Movement();
+                EntranceMovement();
             }
     }
 
-
-
     protected virtual void Movement()
     {
-        float input_h = GetHorizontal();
-        float input_v = GetVertical();
-        //speed modificator
-        if (PU_speed)
+        float horizontalInput = GetHorizontal();
+        float verticalInput = GetVertical();
+        
+        if (_isSpedUp)
         {
-            input_h *= v_speedup;
-            input_v *= v_speedup;
+            horizontalInput *= _speedUpFactor;
+            verticalInput *= _speedUpFactor;
         }
 
-        switch (forward)
+        switch (_forwardDirection)
         {
-            case Direction.Up:
-                if (input_v > 0)
+            case PlayerDirection.up:
+                if (verticalInput > 0)
                 {
-                    transform.Translate((Vector3.up * v_for * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = true;
+                    transform.Translate((Vector3.up * _forwardSpeed * verticalInput + Vector3.right * _sidewardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = true;
                 }
-                else if (input_v <= 0)
+                else if (verticalInput <= 0)
                 {
-                    transform.Translate((Vector3.up * v_back * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = false;
+                    transform.Translate((Vector3.up * _backwardSpeed * verticalInput + Vector3.right * _sidewardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = false;
                 }                
-                Turn_Animation(input_h);
+                TurningAnimation(horizontalInput);
                 break;
-            case Direction.Down:
-                if (input_v >= 0)
+            case PlayerDirection.down:
+                if (verticalInput >= 0)
                 {
-                    transform.Translate((Vector3.up * v_back * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = false;
+                    transform.Translate((Vector3.up * _backwardSpeed * verticalInput + Vector3.right * _sidewardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = false;
                 }
-                else if (input_v < 0)
+                else if (verticalInput < 0)
                 {
-                    transform.Translate((Vector3.up * v_for * input_v + Vector3.right * v_side * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = true;
+                    transform.Translate((Vector3.up * _forwardSpeed * verticalInput + Vector3.right * _sidewardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = true;
                 }
-                Turn_Animation(input_h);
+                TurningAnimation(horizontalInput);
                 break;
-            case Direction.Right:
-                if (input_h > 0)
+            case PlayerDirection.right:
+                if (horizontalInput > 0)
                 {
-                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_for * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = true;
+                    transform.Translate((Vector3.up * _sidewardSpeed * verticalInput + Vector3.right * _forwardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = true;
                 }
-                else if (input_h <= 0)
+                else if (horizontalInput <= 0)
                 {
-                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_back * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = false;
+                    transform.Translate((Vector3.up * _sidewardSpeed * verticalInput + Vector3.right * _backwardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = false;
                 }
-                Turn_Animation(input_v);
+                TurningAnimation(verticalInput);
                 break;
-            case Direction.Left:
-                if (input_h >= 0)
+            case PlayerDirection.left:
+                if (horizontalInput >= 0)
                 {
-                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_back * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = false;
+                    transform.Translate((Vector3.up * _sidewardSpeed * verticalInput + Vector3.right * _backwardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = false;
                 }
-                else if (input_h < 0)
+                else if (horizontalInput < 0)
                 {
-                    transform.Translate((Vector3.up * v_side * input_v + Vector3.right * v_for * input_h) * Time.deltaTime, Space.World);
-                    thrust_current = true;
+                    transform.Translate((Vector3.up * _sidewardSpeed * verticalInput + Vector3.right * _forwardSpeed * horizontalInput) * Time.deltaTime, Space.World);
+                    _isThrustOn = true;
                 }
-                Turn_Animation(input_v);
+                TurningAnimation(verticalInput);
                 break;
         }
         //Position limits
-        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.15f, 9.15f), Mathf.Clamp(transform.position.y, -3.50f, 5.67f), 0);        
-        //Thruster scale change
-        if (thrust_prev != thrust_current)
+        transform.position = new Vector3(Mathf.Clamp(transform.position.x, -9.15f, 9.15f), Mathf.Clamp(transform.position.y, -3.50f, 5.67f), 0);
+
+        ScaleThruster();          
+    }
+
+    protected virtual float GetHorizontal()
+    {
+        return 0f;
+    }
+
+    protected virtual float GetVertical()
+    {
+        return 0f;
+    }
+    
+    private void TurningAnimation(float rightwardInput)
+    {
+        if (rightwardInput == 0 && (_wasTurningLeft || _wasTurningRight))
         {
-            if (thrust_current)
+            _anim_Turning.SetBool(_anim_ID_TurnRight, false);
+            _anim_Turning.SetBool(_anim_ID_TurnLeft, false);
+            _wasTurningLeft = false;
+            _wasTurningRight = false;
+        }
+        else if (rightwardInput > 0 && !_wasTurningRight)
+        {
+            _anim_Turning.SetBool(_anim_ID_TurnRight, true);
+            _wasTurningRight = true;
+        }
+        else if (rightwardInput < 0 && !_wasTurningLeft)
+        {
+            _anim_Turning.SetBool(_anim_ID_TurnLeft, true);
+            _wasTurningLeft = true;
+        }
+    }
+
+    private void ScaleThruster()
+    {
+        if (_wasThrustOn != _isThrustOn)
+        {
+            if (_isThrustOn)
             {
                 _thruster.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             }
@@ -282,48 +332,14 @@ public class Player : MonoBehaviour
             {
                 _thruster.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             }
-            thrust_prev = thrust_current;            
-        }       
-    }
-
-    protected virtual float GetHorizontal()
-    {
-        return 0f;
-    }
-    protected virtual float GetVertical()
-    {
-        return 0f;
-    }
-
-    //Managing Animator's parameters for turns
-    protected void Turn_Animation(float right)
-    {
-        if (right == 0 && (turn_left_prev || turn_right_prev))
-        {
-            _anim.SetBool(anim_Turn_Right_id, false);
-            _anim.SetBool(anim_Turn_Left_id, false);
-            turn_left_prev = false;
-            turn_right_prev = false;
-        }
-        else if (right > 0 && !turn_right_prev)
-        {
-            _anim.SetBool(anim_Turn_Right_id, true);
-            turn_right_prev = true;
-        }
-        else if (right < 0 && !turn_left_prev)
-        {
-            _anim.SetBool(anim_Turn_Left_id, true);
-            turn_left_prev = true;
+            _wasThrustOn = _isThrustOn;
         }
     }
-
-
-
-    //Rotation towards mouse position
-    protected void Mouse_Rotation()
+    
+    protected void RotationToMouse()
     {
-        Vector3 M = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
-        transform.rotation *= Quaternion.FromToRotation(transform.up, (M - transform.position));
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
+        transform.rotation *= Quaternion.FromToRotation(transform.up, (mousePosition - transform.position));
         if (_damage1.activeSelf)
         {
             _damage1.transform.rotation *= Quaternion.FromToRotation(_damage1.transform.up, Vector3.up);
@@ -337,162 +353,141 @@ public class Player : MonoBehaviour
             _damage3.transform.rotation *= Quaternion.FromToRotation(_damage3.transform.up, Vector3.up);
         }
     }
-
-    //Entrance Movement
-    protected virtual void Entrance_Movement()
+    
+    protected virtual void EntranceMovement()
     {
-        transform.Translate(Vector3.up * 5f / t_entrance * Time.deltaTime, Space.World);        
+        transform.Translate(Vector3.up * 5f / _playerEntranceDuration * Time.deltaTime, Space.World);        
     }
 
     protected void Fire()
     {
-        if (PU_triple == true)
+        if (_isTripleFire == true)
         {
-            GameObject _new_triple = Instantiate(_triple_laser, transform.position, transform.rotation, _spawnManager.laserContainer.transform);
-            Laser[] lasers = _new_triple.GetComponentsInChildren<Laser>();
+            GameObject newTripleFire = Instantiate(_tripleLaser, transform.position, transform.rotation, _spawnManager.laserContainer.transform);
+            Laser[] lasers = newTripleFire.GetComponentsInChildren<Laser>();
             foreach (Laser laser in lasers)
             {
                 laser.SetPlayer(this);
             }
-            audio_source.PlayOneShot(audio_fire);
-            audio_source.PlayOneShot(audio_fire);
-            audio_source.PlayOneShot(audio_fire);
+            _audio_Source.PlayOneShot(_audio_Fire);
+            _audio_Source.PlayOneShot(_audio_Fire);
+            _audio_Source.PlayOneShot(_audio_Fire);
         }
         else
         {
-            GameObject _new_laser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _spawnManager.laserContainer.transform);
-            _new_laser.GetComponent<Laser>().SetPlayer(this);
-            audio_source.PlayOneShot(audio_fire);
+            GameObject newLaser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _spawnManager.laserContainer.transform);
+            newLaser.GetComponent<Laser>().SetPlayer(this);
+            _audio_Source.PlayOneShot(_audio_Fire);
         }
 
-        StartCoroutine(Fire_cooldown());
+        StartCoroutine(FireCooldown());
     }
 
-    protected IEnumerator Fire_cooldown()
+    private IEnumerator FireCooldown()
     {
-        Fire_cooldown_count++;
-        Fire_enabled = false;
-        yield return new WaitForSeconds(t_laser_cooldown);
-        Fire_cooldown_count--;
-        if (Fire_cooldown_count == 0)
+        _fireCooldownCount++;
+        _isFireEnabled = false;
+        yield return new WaitForSeconds(_laserCooldownDuration);
+
+        _fireCooldownCount--;
+        if (_fireCooldownCount == 0)
         {
-            Fire_enabled = true;
+            _isFireEnabled = true;
         }
     }
-
-    //Activation of triple shot PU
-    protected IEnumerator PU_triple_act()
+    
+    private IEnumerator ActivateTripleFire()
     {
-        PU_Triple_count++;
-        PU_triple = true;
-        yield return new WaitForSeconds(triple_laser_time);
-        PU_Triple_count--;
-        if (PU_Triple_count == 0) {
-            PU_triple = false;
+        _tripleFireCount++;
+        _isTripleFire = true;
+        yield return new WaitForSeconds(_tripleFireDuration);
+
+        _tripleFireCount--;
+        if (_tripleFireCount == 0) {
+            _isTripleFire = false;
         }
     }
-
-    //Activation of speed boost PU
-    protected IEnumerator PU_speed_act()
+    
+    private IEnumerator ActivateSpeedUp()
     {
-        PU_speed_count++;
-        PU_speed = true;
-        yield return new WaitForSeconds(speedup_time);
-        PU_speed_count--;
-        if (PU_speed_count == 0)
+        _speedUpCount++;
+        _isSpedUp = true;
+        yield return new WaitForSeconds(_speedUpDuration);
+
+        _speedUpCount--;
+        if (_speedUpCount == 0)
         {
-            PU_speed = false;
+            _isSpedUp = false;
         }
     }
-
-    // PU collisions
-    protected void OnTriggerEnter2D(Collider2D other)
+    
+    private void OnTriggerEnter2D(Collider2D other)
     {
         switch (other.tag)
         {
             case "PU_Triple":
-                StartCoroutine(PU_triple_act());
-                audio_source.PlayOneShot(audio_powerup);
+                StartCoroutine(ActivateTripleFire());
+                _audio_Source.PlayOneShot(_audio_PowerUp);
                 Destroy(other.gameObject);
                 break;
             case "PU_player_speed":        
-                StartCoroutine(PU_speed_act());
-                audio_source.PlayOneShot(audio_powerup);
+                StartCoroutine(ActivateSpeedUp());
+                _audio_Source.PlayOneShot(_audio_PowerUp);
                 Destroy(other.gameObject);
                 break;
             case "PU_shield":
                 _shield.gameObject.SetActive(true);
-                audio_source.PlayOneShot(audio_powerup);
+                _audio_Source.PlayOneShot(_audio_PowerUp);
                 Destroy(other.gameObject);
                 break;
             case "Fire_enemy":
                 Destroy(other.gameObject);
-                Object_collide();
+                ObjectCollision();
                 break;
         }
     }
-
-    //Enemy collision
-    public void Enemy_collide()
+    
+    public void EnemyCollision()
     {
-        Kill_count(1);
-        if (_shield.gameObject.activeSelf)
-        {
-          //Shield works
-          _shield.gameObject.SetActive(false);
+        AddScore(1);
+        if (_shield.activeSelf)
+        {          
+          _shield.SetActive(false);
         }
         else
         {
-          Take_Damage(Enemy_col_damage);
-          if (Player_health <= 0)
-          {
-             _UI_Manager.GameOver();
-             transform.gameObject.SetActive(false);
-             return;
-          }
-          StartCoroutine(Fire_cooldown());
+          TakeDamage(_damageOnEnemyCollision);         
         }
     }
-
-    //Object Collision
-    public void Object_collide()
+    
+    public void ObjectCollision()
     {
-        if (_shield.gameObject.activeSelf)
+        if (_shield.activeSelf)
         {
-            //Shield works
-            _shield.gameObject.SetActive(false);
+            _shield.SetActive(false);
         }
         else
         {
-            Take_Damage(Obj_col_damage);
-            if (Player_health <= 0)
-            {
-                _UI_Manager.GameOver();
-                transform.gameObject.SetActive(false);
-                return;
-            }
-            StartCoroutine(Fire_cooldown());
+            TakeDamage(_damageOnObjectCollision);            
         }
     }
-
-    //Adding to kill count
-    public virtual void Kill_count(int add)
+    
+    public virtual void AddScore(int add)
     {
-        Player_kills += add;        
+        _score += add;        
     }
-
-    //Player taking damage
-    public virtual void Take_Damage(int Damage)
+    
+    public virtual void TakeDamage(int damage)
     {
-        audio_source.PlayOneShot(audio_damage);
+        _audio_Source.PlayOneShot(_audio_Damage);
 
-        if (Damage > Player_health)
+        if (damage > _lives)
         {
-            Player_health = 0;
+            _lives = 0;
         }
         else {
-            Player_health -= Damage;
-            switch (Player_health)
+            _lives -= damage;
+            switch (_lives)
             {
                 case 3:
                     _damage1.transform.rotation = transform.rotation;
@@ -507,19 +502,23 @@ public class Player : MonoBehaviour
                     _damage3.gameObject.SetActive(true);
                     break;
             }
-        }       
-    }
+        }
 
-    //Returns Player's lives
-    public int Lives()
-    {
-        return Player_health;
+        if (_lives <= 0)
+        {
+            _UI_Manager.GameOver();
+            transform.gameObject.SetActive(false);
+            return;
+        }
+        else
+        {
+            StartCoroutine(FireCooldown());
+        }
     }
-
-    //Check if player's alive
-    public bool Alive()
+        
+    public bool IsAlive()
     {
-        if (Player_health > 0)
+        if (_lives > 0)
         {
             return true;
         }
@@ -528,41 +527,42 @@ public class Player : MonoBehaviour
             return false;
         }
     }
-
-    //Initial set of entrance time
-    public void Set_t_entrance(float t)
+    
+    public void SetEntranceDuration(float duration)
     {
-        t_entrance = t;
-        if(t_entrance == 0)
+        _playerEntranceDuration = duration;
+        if(_playerEntranceDuration == 0)
         {
-            User_Control = true;
+            _isUserControlled = true;
         }
     }
-
-    //Rotation stop animation
-    public void Stop_rot(Vector3 dir, float t_stop)
+    
+    public void StopRotation(Vector3 fixedForwardDirection, float stopDuration)
     {
-        rotation_fix = true;
-        StartCoroutine(Stop_rotation(dir, t_stop, t_stop + Time.timeSinceLevelLoad));
+        _isRotationOff = true;
+        StartCoroutine(Stop_rotation(fixedForwardDirection, stopDuration, stopDuration + Time.timeSinceLevelLoad));
     }
-    protected IEnumerator Stop_rotation(Vector3 dir, float t, float t_end)
+
+    protected IEnumerator Stop_rotation(Vector3 forwardDirection, float stopDuration, float endTime)
     {
-        if (t == 0) {
-            Debug.LogWarning("Coroutine Stop_rotation got 0 as the time of execution.");
+        if (stopDuration == 0) {
+            Debug.LogError("Coroutine Stop_rotation got 0 as the time of execution.");
             yield return null;
         }
-        float w_stop; //angular velocity
-        float Z = Quaternion.FromToRotation(transform.up, dir).eulerAngles.z; //angle of rotation
-        if (Mathf.Abs(Z) <= 180) {
-            w_stop = Z * 0.05f / t;
+
+        float angularSpeed;
+        float angleOfRotation = Quaternion.FromToRotation(transform.up, forwardDirection).eulerAngles.z;
+        if (Mathf.Abs(angleOfRotation) <= 180) {
+            angularSpeed = angleOfRotation * 0.05f / stopDuration;
         }
         else
         {
-            w_stop = (Z-360) * 0.05f / t;
+            angularSpeed = (angleOfRotation-360) * 0.05f / stopDuration;
         }
-        while (Time.timeSinceLevelLoad < t_end)
+
+        while (Time.timeSinceLevelLoad < endTime)
         {
-            transform.Rotate(0,0,w_stop);
+            transform.Rotate(0,0,angularSpeed);
             if (_damage1.activeSelf)
             {
                 _damage1.transform.rotation *= Quaternion.FromToRotation(_damage1.transform.up, Vector3.up);
@@ -577,21 +577,32 @@ public class Player : MonoBehaviour
             }
             yield return new WaitForSeconds(0.05f);
         }
-        transform.rotation *= Quaternion.FromToRotation(transform.up, dir);
+        transform.rotation *= Quaternion.FromToRotation(transform.up, forwardDirection);
         if (_damage1.activeSelf)
         {
-            _damage1.transform.rotation *= Quaternion.FromToRotation(_damage1.transform.up, dir);
+            _damage1.transform.rotation *= Quaternion.FromToRotation(_damage1.transform.up, forwardDirection);
         }
         if (_damage2.activeSelf)
         {
-            _damage2.transform.rotation *= Quaternion.FromToRotation(_damage2.transform.up, dir);
+            _damage2.transform.rotation *= Quaternion.FromToRotation(_damage2.transform.up, forwardDirection);
         }
         if (_damage3.activeSelf)
         {
-            _damage3.transform.rotation *= Quaternion.FromToRotation(_damage3.transform.up, dir);
-        }
-        yield return null;
+            _damage3.transform.rotation *= Quaternion.FromToRotation(_damage3.transform.up, forwardDirection);
+        }        
     }   
 
-    public virtual bool Is_Player1() { return true; }
+    public virtual bool IsPlayer1() { return true; }
+
+    public void SetSpawnManager(Spawn_Manager spawnManager) 
+    {
+        if (spawnManager == null)
+        {
+            Debug.LogError("Player was handled an empty Spawn Manager.");
+        }
+        else
+        {
+            _spawnManager = spawnManager;
+        }
+    }
 }

@@ -5,96 +5,80 @@ using UnityEngine.EventSystems;
 
 public class Asteroid : Moving_Object
 {
-    private float w = 0f; //rotation speed in rpm
-    private float w_min = 1f;  //rotation speed limits
-    private float w_max = 11f;
-    private bool trigger = false; //destruction serves as a trigger
+    private float _rotationalSpeed = 0f; //in rpm
+    private float _rotationalSpeedMin = 1f;
+    private float _rotationalSpeedMax = 11f;
+    private bool _isWaveTrigger = false;
 
     [SerializeField]
-    private GameObject _Explosion;
-    private Player _player;
-    private Spawn_Manager _spawnManager;
-    //Audio
-    private AudioSource audio_destruction;
+    private GameObject _explosion;
+    private Spawn_Manager _spawnManager;    
+    private AudioSource _audio_Destruction;
 
     protected override void Start()
     {
-        _spawnManager = transform.parent.parent.GetComponent<Spawn_Manager>();
-        _player = _spawnManager._player;
-        audio_destruction = transform.parent.GetComponent<AudioSource>();
-        //Objects check        
-        if (_Explosion == null)
-        {
-            Debug.LogError("Asteroid could not locate Explosion animation.");
-        }       
-        if (_spawnManager == null)
-        {
-            Debug.LogError("Asteroid could not locate Spawn Manager.");
-        }        
-        if (_player == null)
-        {
-            Debug.LogError("Asteroid could not locate Player.");
-        }
-        if (audio_destruction == null)
-        {
-            Debug.LogError("Asteroid could not locate audio in the Object Container.");
-        }
-
-        v = 1.5f;
-        w = Random.Range(w_min, w_max) * (Random.Range(0, 2) * 2 - 1);
-        //Parameters check
-        if (v <= 0)
-        {
-            Debug.LogWarning("The asteroid's speed is not positive.");
-        }
-        if (Mathf.Abs(w)<w_min || Mathf.Abs(w) > w_max)
+        FindObjects();
+        
+        _speed = 1.5f;
+        _rotationalSpeed = Random.Range(_rotationalSpeedMin, _rotationalSpeedMax) * (Random.Range(0, 2) * 2 - 1);               
+        if (Mathf.Abs(_rotationalSpeed) < _rotationalSpeedMin || Mathf.Abs(_rotationalSpeed) > _rotationalSpeedMax)
         {
             Debug.LogWarning("The asteroid's rotational speed is out of the set range.");
         }
         
         base.Start();
+    }
 
-        if (transform.position.x < 11f && transform.position.x > -11f && transform.position.y > -5.95f && transform.position.y < 7.5f)
+    private void FindObjects()
+    {
+        _spawnManager = transform.parent.parent.GetComponent<Spawn_Manager>();
+        _audio_Destruction = transform.parent.GetComponent<AudioSource>();
+        if (_explosion == null)
         {
-            Debug.LogWarning("An asteroid appeared out of nowhere!");
-            dir = Vector3.down;
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+            Debug.LogError("Asteroid could not locate Explosion animation.");
+        }
+        if (_spawnManager == null)
+        {
+            Debug.LogError("Asteroid could not locate Spawn Manager.");
+        }
+        if (_audio_Destruction == null)
+        {
+            Debug.LogError("Asteroid could not locate audio in the Object Container.");
         }
     }
         
     protected override void Update()
     {
         base.Update();
-        transform.Rotate(0, 0, Time.deltaTime * w * 6);
+        transform.Rotate(0, 0, Time.deltaTime * _rotationalSpeed * 6);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        GameObject _new_explosion = Instantiate(_Explosion, transform.position, transform.rotation, transform.parent);
-        _new_explosion.transform.localScale = transform.localScale;       
+        GameObject _newExplosion = Instantiate(_explosion, transform.position, transform.rotation, transform.parent);
+        _newExplosion.transform.localScale = transform.localScale;    
         transform.gameObject.SetActive(false);
-        audio_destruction.PlayOneShot(audio_destruction.clip);
+        _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
 
         if (other.CompareTag("Fire") || other.CompareTag("Fire_enemy"))
         {
             Destroy(other.gameObject);            
-            if (trigger == true)
+            if (_isWaveTrigger == true)
             {
-                _spawnManager.Asteroid_destroyed();
+                _spawnManager.DestroyedAsteroid();
             }           
         }
-        if (other.CompareTag("Player"))
+        else if (other.CompareTag("Player"))
         {
-            _player.Object_collide();            
+            other.GetComponent<Player>().ObjectCollision();            
         }
 
-        Destroy(_new_explosion.gameObject, 2.37f);
+        Destroy(_newExplosion.gameObject, 2.37f);
         Destroy(transform.gameObject, 0.28f);
     }
-
-    //Setting trigger option
-    public void SetTrigger(bool set)
+    
+    public void SetAsWaveTrigger()
     {
-        trigger = set;
+        _isWaveTrigger = true;
     }
 }

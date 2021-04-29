@@ -36,7 +36,7 @@ public class Game_Manager : MonoBehaviour
         _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
         if (_UI_Manager == null)
         {
-            Debug.LogWarning("Game Manager could not find Canvas.");
+            Debug.LogError("Game Manager could not find Canvas.");
         }
         else
         {

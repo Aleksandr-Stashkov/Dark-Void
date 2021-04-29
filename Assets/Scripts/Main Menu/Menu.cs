@@ -53,7 +53,7 @@ public class Menu : MonoBehaviour
 
         if (_pnl_Score == null)
         {
-            Debug.LogWarning("Main Menu could not locate Score panel.");
+            Debug.LogError("Main Menu could not locate Score panel.");
         }
         else
         {
@@ -75,19 +75,19 @@ public class Menu : MonoBehaviour
         //Check objects
         if (_txt_Credits == null)
         {
-            Debug.LogWarning("Main Menu could not locate Credits text.");
+            Debug.LogError("Main Menu could not locate Credits text.");
         }
         if (_pnl_Buttons == null)
         {
-            Debug.LogWarning("Main Menu could not locate Buttons panel.");
+            Debug.LogError("Main Menu could not locate Buttons panel.");
         }
         if (_txt_SingleScore == null)
         {
-            Debug.LogWarning("Main Menu could not locate Single Score text.");
+            Debug.LogError("Main Menu could not locate Single Score text.");
         }
         if (_txt_CoopScore == null)
         {
-            Debug.LogWarning("Main Menu could not locate Coop Score text.");
+            Debug.LogError("Main Menu could not locate Coop Score text.");
         }
     }
 

@@ -94,7 +94,7 @@ public class UI_Manager : MonoBehaviour
 
         if (_pnl_PauseMenu == null)
         {
-            Debug.LogWarning("UI Manager could not locate Pause Menu panel.");
+            Debug.LogError("UI Manager could not locate Pause Menu panel.");
         }
         else
         {
@@ -111,26 +111,31 @@ public class UI_Manager : MonoBehaviour
         {
             _isCoop = _GameManager.IsCoop();
         }
-        //Check elements
+
+        CheckElements();
+    }
+
+    private void CheckElements()
+    {
         if (_txt_Score1 == null)
         {
-            Debug.LogWarning("UI Manager could not locate Score1 text.");
+            Debug.LogError("UI Manager could not locate Score1 text.");
         }
         if (_img_Lives1 == null)
         {
-            Debug.LogWarning("UI Manager could not locate Lives1 image.");
+            Debug.LogError("UI Manager could not locate Lives1 image.");
         }
         if (_txt_GameOver == null)
         {
-            Debug.LogWarning("UI Manager could not locate Game Over text.");
+            Debug.LogError("UI Manager could not locate Game Over text.");
         }
         if (_tmp_Restart == null)
         {
-            Debug.LogWarning("UI Manager could not locate Restart text.");
+            Debug.LogError("UI Manager could not locate Restart text.");
         }
         if (_tmp_NewRecord == null)
         {
-            Debug.LogWarning("UI Manager could not locate New Record text.");
+            Debug.LogError("UI Manager could not locate New Record text.");
         }
         if (_anim_Pause == null)
         {
@@ -138,21 +143,25 @@ public class UI_Manager : MonoBehaviour
         }
         if (_anim_ID_Pause == 0)
         {
-            Debug.LogWarning("UI Manager could not find Pause parameter of the Pause Menu animator.");
+            Debug.LogError("UI Manager could not find Pause parameter of the Pause Menu animator.");
+        }
+        if (_anim_Length <= 0)
+        {
+            Debug.LogWarning("Animation length for the Pause Menu is invalid.");
         }
         if (_isCoop)
         {
             if (_txt_Score2 == null)
             {
-                Debug.LogWarning("UI Manager could not locate Score2 text.");
+                Debug.LogError("UI Manager could not locate Score2 text.");
             }
             if (_img_Lives2 == null)
             {
-                Debug.LogWarning("UI Manager could not locate Lives2 image.");
+                Debug.LogError("UI Manager could not locate Lives2 image.");
             }
             if (_pnl_Controls == null)
             {
-                Debug.LogWarning("UI Manager could not locate Controls panel.");
+                Debug.LogError("UI Manager could not locate Controls panel.");
             }
         }
     }
@@ -272,7 +281,7 @@ public class UI_Manager : MonoBehaviour
             _img_Lives2.gameObject.SetActive(true);
         }
 
-        Debug.Log("UI triggered");
+        Debug.Log("UI triggered.");
     }
 
     public void UpdateScore1(int newScore)
@@ -280,11 +289,11 @@ public class UI_Manager : MonoBehaviour
         _score1 = newScore;
         if (_isCoop)
         {
-            _txt_Score1.text = newScore.ToString();
+            _txt_Score1.text = _score1.ToString();
         }
         else
         {
-            _txt_Score1.text = "Score: " + newScore.ToString();
+            _txt_Score1.text = "Score: " + _score1.ToString();
         }
 
         if(_score1+_score2 > _record)
@@ -295,7 +304,7 @@ public class UI_Manager : MonoBehaviour
     public void UpdateScore2(int newScore)
     {
         _score2 = newScore;
-        _txt_Score2.text = newScore.ToString();
+        _txt_Score2.text = _score2.ToString();
 
         if (_score1 + _score2 > _record)
         {

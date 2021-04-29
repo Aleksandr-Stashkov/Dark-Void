@@ -5,82 +5,93 @@ using UnityEngine;
 public class Coop_Spawn_Manager : Spawn_Manager
 {
     [HideInInspector]
-    public Player _player_2;
+    public Player player2;
     
 
     protected override void Start()
     {
         base.Start();
 
-        Find_Players();
-        if (_player == null)
-        {
-            Debug.LogError("Spawn Manager could not locate Player 1.");
-        }
-        if (_player_2 == null)
-        {
-            Debug.LogError("Spawn Manager could not locate Player 2.");
-        }
-
+        FindPlayers();
         //Players entrance pause
-        t_player_entrance = 7f;
-        t_start_0 += t_player_entrance;
-        _player.Set_t_entrance(t_player_entrance);
-        _player_2.Set_t_entrance(t_player_entrance);
+        _playerEntranceDuration = 7f;
+        _waveStartPause += _playerEntranceDuration;
+        player.SetEntranceDuration(_playerEntranceDuration);
+        player2.SetEntranceDuration(_playerEntranceDuration);
 
-        if (_player.Alive() && _player_2.Alive())
+        if (player.IsAlive() && player2.IsAlive())
         {
-            StartCoroutine(Asteroid_field(t_start_0 + t_wave_0, t_start_0, t_start_0, dt_enemy_0, Wave_dir.Down, true));
+            StartCoroutine(AsteroidTriggerWave(_waveStartPause + _waveDuration, _waveStartPause, _waveStartPause, _enemySpawnPeriod,WaveDirection.down));
         }
     }
 
     //Identifying players
-    private void Find_Players()
+    private void FindPlayers()
     {
-        GameObject[] _players;
-        _players = GameObject.FindGameObjectsWithTag("Player");
-        if(_players.Length == 2)
+        GameObject[] players;
+        players = GameObject.FindGameObjectsWithTag("Player");
+        if(players.Length == 2)
         {
-            _player = _players[0].GetComponent<Coop_Player>();
-            if (_player.Is_Player1())
+            player = players[0].GetComponent<Coop_Player>();
+            if (player.IsPlayer1())
             {
-                _player_2 = _players[1].GetComponent<Coop_Player>();
+                player2 = players[1].GetComponent<Coop_Player>();
             }
             else
             {
-                _player_2 = _player;
-                _player = _players[1].GetComponent<Coop_Player>();
+                player2 = player;
+                player = players[1].GetComponent<Coop_Player>();
             }
         }
         else
         {
-            Debug.LogWarning("The number of players is other than two.");
+            Debug.LogError("The number of players is other than two.");
+        }
+
+        if (player == null)
+        {
+            Debug.LogError("Spawn Manager could not locate Player 1.");
+        }
+        else
+        {
+            player.SetSpawnManager(this);
+        }
+        if (player2 == null)
+        {
+            Debug.LogError("Spawn Manager could not locate Player 2.");
+        }
+        else
+        {
+            player2.SetSpawnManager(this);
         }
     }
 
     //Main wave sequaence
-    protected override IEnumerator Main_Timeline()
+    protected override IEnumerator MainTimeline()
     {       
-        _audioBackground.PlayDelayed(t_start_0 / 4);
-        while (_player.Alive() && _player_2.Alive())
+        _audio_Background.PlayDelayed(_waveStartPause / 4);
+        while (player.IsAlive() && player2.IsAlive())
         {
-            yield return StartCoroutine(Pos_range(t_start_0 + t_wave_0, t_start_0, t_wave_pause_0, dt_enemy_0, Wave_dir.Down, PU_0));
-            if (!(_player.Alive() && _player_2.Alive()))
+            yield return StartCoroutine(EnemyWave(_waveStartPause + _waveDuration, _waveStartPause, _waveEndPause, _enemySpawnPeriod, WaveDirection.down));
+            if (!(player.IsAlive() && player2.IsAlive()))
             {
                 yield break;
             }
-            yield return StartCoroutine(Pos_range(t_start_0 + t_wave_pause_0 + 2 * t_wave_0, 0, t_wave_pause_0, dt_enemy_0, dt_enemy_0_def, Wave_dir.Down, PU_1));
-            if (!(_player.Alive() && _player_2.Alive()))
+            StartCoroutine(PU_TripleFireWave(_waveStartPause + _waveEndPause + 2 * _waveDuration));
+            yield return StartCoroutine(EnemyWave(_waveStartPause + _waveEndPause + 2 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            if (!(player.IsAlive() && player2.IsAlive()))
             {
                 yield break;
             }
-            yield return StartCoroutine(Pos_range(t_start_0 + 2 * t_wave_pause_0 + 3 * t_wave_0, 0, t_wave_pause_0, dt_enemy_0, dt_enemy_0_def, Wave_dir.Down, PU_2));
-            if (!(_player.Alive() && _player_2.Alive()))
+            StartCoroutine(PU_SpeedUpWave(_waveStartPause + 2 * _waveEndPause + 3 * _waveDuration));
+            yield return StartCoroutine(EnemyWave(_waveStartPause + 2 * _waveEndPause + 3 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            if (!(player.IsAlive() && player2.IsAlive()))
             {
                 yield break;
             }
-            yield return StartCoroutine(Pos_range(t_start_0 + 3 * t_wave_pause_0 + 4 * t_wave_0, 0, t_wave_pause_0, dt_enemy_0, dt_enemy_0_def, Wave_dir.Down, PU_4));
-            if (!(_player.Alive() && _player_2.Alive()))
+            StartCoroutine(PU_ShieldWave(_waveStartPause + 3 * _waveEndPause + 4 * _waveDuration));
+            yield return StartCoroutine(EnemyWave(_waveStartPause + 3 * _waveEndPause + 4 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            if (!(player.IsAlive() && player2.IsAlive()))
             {
                 yield break;
             }

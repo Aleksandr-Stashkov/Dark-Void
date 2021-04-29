@@ -4,22 +4,21 @@ using UnityEngine;
 
 public class Single_Player : Player
 {
-    protected override void Start()
+    protected override void InitialSetting()
     {
-        base.Start();
+        base.InitialSetting();
 
-        //UI initial set
-        _UI_Manager.UpdateScore1(Player_kills);
-        _UI_Manager.UpdateLives1(Player_health);
-        //Player initial set
+        _UI_Manager.UpdateScore1(_score);
+        _UI_Manager.UpdateLives1(_lives);
+        
         transform.position = new Vector3(0, -6f, 0);
     }
 
     protected override void Update()
     {
-        if (User_Control && !Game_Manager.isPaused)
+        if (_isUserControlled && !Game_Manager.isPaused)
         {
-            if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && Fire_enabled)
+            if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && _isFireEnabled)
             {
                 Fire();
             }
@@ -37,10 +36,9 @@ public class Single_Player : Player
 
         base.Movement();
 
-        //Rotation
-        if (!rotation_fix)
+        if (!_isRotationOff)
         {
-            Mouse_Rotation();
+            RotationToMouse();
         }
     }
 
@@ -53,17 +51,17 @@ public class Single_Player : Player
         return Input.GetAxis("Vertical_Single");
     }
 
-    protected override IEnumerator Entrance_timer()
+    protected override IEnumerator EntranceTimer()
     {
-        yield return StartCoroutine(base.Entrance_timer());
+        yield return StartCoroutine(base.EntranceTimer());
         _UI_Manager.Trigger_UI();
     }
 
-    protected override void Entrance_Movement()
+    protected override void EntranceMovement()
     {
-        if (t_entrance != 0)
+        if (_playerEntranceDuration != 0)
         {
-            base.Entrance_Movement();
+            base.EntranceMovement();
         }
         else
         {
@@ -71,16 +69,15 @@ public class Single_Player : Player
         }
     }
 
-    public override void Kill_count(int add)
+    public override void AddScore(int add)
     {
-        base.Kill_count(add);
-        _UI_Manager.UpdateScore1(Player_kills);
+        base.AddScore(add);
+        _UI_Manager.UpdateScore1(_score);
     }
 
-    public override void Take_Damage(int Damage)
+    public override void TakeDamage(int damage)
     {
-        base.Take_Damage(Damage);
-
-        _UI_Manager.UpdateLives1(Player_health);
+        base.TakeDamage(damage);
+        _UI_Manager.UpdateLives1(_lives);
     }
 }

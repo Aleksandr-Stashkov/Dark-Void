@@ -5,37 +5,35 @@ using UnityEngine;
 public class Coop_Player : Player
 {
     [SerializeField]
-    private bool Player1 = false;
-
-    protected override void Start()
+    private bool _isPlayer1 = false;
+    
+    protected override void InitialSetting()
     {
-        base.Start();
+        base.InitialSetting();
 
-        rotation_fix = true;
+        _isRotationOff = true;
 
-        if (Player1)
+        if (_isPlayer1)
         {
-            //UI initial set
-            _UI_Manager.UpdateScore1(Player_kills);
-            _UI_Manager.UpdateLives1(Player_health);
-            //Player 1 initial set
-            transform.position = new Vector3(-5f, -6f, 0);                     
+            _UI_Manager.UpdateScore1(_score);
+            _UI_Manager.UpdateLives1(_lives);
+            
+            transform.position = new Vector3(-5f, -6f, 0);
         }
         else
         {
-            //UI initial set
-            _UI_Manager.UpdateScore2(Player_kills);
-            _UI_Manager.UpdateLives2(Player_health);
-            //Player 2 initial set
-            transform.position = new Vector3(5f, -6f, 0);            
+            _UI_Manager.UpdateScore2(_score);
+            _UI_Manager.UpdateLives2(_lives);
+           
+            transform.position = new Vector3(5f, -6f, 0);
         }
     }
 
     protected override void Update()
     {
-        if (User_Control && !Game_Manager.isPaused)
+        if (_isUserControlled && !Game_Manager.isPaused)
         {
-            if ((Input.GetKeyDown(KeyCode.Space) && Player1 && Fire_enabled) || (Input.GetMouseButtonDown(0) && !Player1 && Fire_enabled))
+            if ((Input.GetKeyDown(KeyCode.Space) && _isPlayer1 && _isFireEnabled) || (Input.GetMouseButtonDown(0) && !_isPlayer1 && _isFireEnabled))
             {
                 Fire();
             }
@@ -50,7 +48,7 @@ public class Coop_Player : Player
 
     protected override float GetHorizontal()
     {
-        if (Player1)
+        if (_isPlayer1)
         {
             return Input.GetAxis("Horizontal_Player1");
         }
@@ -61,7 +59,7 @@ public class Coop_Player : Player
     }
     protected override float GetVertical()
     {
-        if (Player1)
+        if (_isPlayer1)
         {
             return Input.GetAxis("Vertical_Player1");
         }
@@ -71,24 +69,24 @@ public class Coop_Player : Player
         }
     }
 
-    protected override IEnumerator Entrance_timer()
+    protected override IEnumerator EntranceTimer()
     {
-        yield return StartCoroutine(base.Entrance_timer());
-        if (Player1)
+        yield return StartCoroutine(base.EntranceTimer());
+        if (_isPlayer1)
         {
             _UI_Manager.Trigger_UI();
         }
     }
 
-    protected override void Entrance_Movement()
+    protected override void EntranceMovement()
     {
-        if (t_entrance != 0)
+        if (_playerEntranceDuration != 0)
         {
-            base.Entrance_Movement();
+            base.EntranceMovement();
         }
         else
         {
-            if (Player1)
+            if (_isPlayer1)
             {
                 transform.position = new Vector3(-5f, -1f, 0);
             }
@@ -99,35 +97,35 @@ public class Coop_Player : Player
         }
     }    
 
-    public override void Kill_count(int add)
+    public override void AddScore(int add)
     {
-        base.Kill_count(add);
-        if (Player1)
+        base.AddScore(add);
+        if (_isPlayer1)
         {
-            _UI_Manager.UpdateScore1(Player_kills);
+            _UI_Manager.UpdateScore1(_score);
         }
         else
         {
-            _UI_Manager.UpdateScore2(Player_kills);
+            _UI_Manager.UpdateScore2(_score);
         }
     }
 
-    public override void Take_Damage(int Damage)
+    public override void TakeDamage(int Damage)
     {
-        base.Take_Damage(Damage);
+        base.TakeDamage(Damage);
 
-        if (Player1)
+        if (_isPlayer1)
         {
-            _UI_Manager.UpdateLives1(Player_health);
+            _UI_Manager.UpdateLives1(_lives);
         }
         else
         {
-            _UI_Manager.UpdateLives2(Player_health);
+            _UI_Manager.UpdateLives2(_lives);
         }
     }
 
-    public override bool Is_Player1()
+    public override bool IsPlayer1()
     {
-        return Player1;
+        return _isPlayer1;
     }
 }

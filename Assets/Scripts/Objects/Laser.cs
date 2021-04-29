@@ -19,10 +19,10 @@ public class Laser : MonoBehaviour
     {
         transform.Translate(transform.up * _velocity * Time.deltaTime, Space.World);
 
-        if (transform.position.y > 8f || transform.position.y < -8f || transform.position.x > 10f || transform.position.x < -10f){
+        if (transform.position.y > 8f || transform.position.y < -8f || transform.position.x > 10f || transform.position.x < -10f)
+        {
             if (transform.parent.CompareTag("Fire"))
             {
-                // Triple laser destruction
                 Destroy(transform.parent.gameObject);
             }
             else
@@ -39,6 +39,6 @@ public class Laser : MonoBehaviour
 
     public void AddScore(int score)
     {
-        _playerSource.Kill_count(score);
+        _playerSource.AddScore(score);
     }
 }

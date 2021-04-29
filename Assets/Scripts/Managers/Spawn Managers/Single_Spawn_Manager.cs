@@ -8,46 +8,58 @@ public class Single_Spawn_Manager : Spawn_Manager
     {
         base.Start();
 
-        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Single_Player>();
-        if (_player == null)
+        FindPlayer();
+        //Player entrance pause
+        _playerEntranceDuration = 5f;
+        _waveStartPause += _playerEntranceDuration;
+        player.SetEntranceDuration(_playerEntranceDuration);        
+
+        if (player.IsAlive())
+        {
+            StartCoroutine(AsteroidTriggerWave(_waveStartPause + _waveDuration, _waveStartPause, _waveStartPause, _enemySpawnPeriod, WaveDirection.down));
+        }
+    }
+
+    private void FindPlayer()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<Single_Player>();
+        if (player == null)
         {
             Debug.LogError("Spawn Manager could not locate Player.");
         }
-
-        //Player entrance pause
-        t_start_0 += t_player_entrance;
-        _player.Set_t_entrance(t_player_entrance);        
-
-        if (_player.Alive())
+        else
         {
-            StartCoroutine(Asteroid_field(t_start_0 + t_wave_0, t_start_0, t_start_0, dt_enemy_0, Wave_dir.Down, true));
+            player.SetSpawnManager(this);
         }
     }
 
     //Main wave sequaence
-    protected override IEnumerator Main_Timeline()
+    protected override IEnumerator MainTimeline()
     {
-        _player.Stop_rot(Vector3.up, t_start_0 / 4);
-        _audioBackground.PlayDelayed(t_start_0 / 4);
-        while (_player.Alive())
+        player.StopRotation(Vector3.up, _waveStartPause / 4);
+        _audio_Background.PlayDelayed(_waveStartPause / 4);
+        while (player.IsAlive())
         {
-            yield return StartCoroutine(Pos_range(t_start_0 + t_wave_0, t_start_0, t_wave_pause_0, dt_enemy_0, Wave_dir.Down, PU_0));
-            if (!(_player.Alive()))
+            yield return StartCoroutine(EnemyWave(_waveStartPause + _waveDuration, _waveStartPause, _waveEndPause, _enemySpawnPeriod, WaveDirection.down));
+            if (!(player.IsAlive()))
             {
                 yield break;
             }
-            yield return StartCoroutine(Pos_range(t_start_0 + t_wave_pause_0 + 2 * t_wave_0, 0, t_wave_pause_0, dt_enemy_0, dt_enemy_0_def, Wave_dir.Down, PU_1));
-            if (!(_player.Alive()))
+            StartCoroutine(PU_TripleFireWave(_waveStartPause + _waveEndPause + 2 * _waveDuration));
+            yield return StartCoroutine(EnemyWave(_waveStartPause + _waveEndPause + 2 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            if (!(player.IsAlive()))
             {
                 yield break;
             }
-            yield return StartCoroutine(Pos_range(t_start_0 + 2 * t_wave_pause_0 + 3 * t_wave_0, 0, t_wave_pause_0, dt_enemy_0, dt_enemy_0_def, Wave_dir.Down, PU_2));
-            if (!(_player.Alive()))
+            StartCoroutine(PU_SpeedUpWave(_waveStartPause + 2*_waveEndPause + 3 * _waveDuration));
+            yield return StartCoroutine(EnemyWave(_waveStartPause + 2 * _waveEndPause + 3 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            if (!(player.IsAlive()))
             {
                 yield break;
             }
-            yield return StartCoroutine(Pos_range(t_start_0 + 3 * t_wave_pause_0 + 4 * t_wave_0, 0, t_wave_pause_0, dt_enemy_0, dt_enemy_0_def, Wave_dir.Down, PU_4));
-            if (!(_player.Alive()))
+            StartCoroutine(PU_ShieldWave(_waveStartPause + 3 * _waveEndPause + 4 * _waveDuration));
+            yield return StartCoroutine(EnemyWave(_waveStartPause + 3 * _waveEndPause + 4 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            if (!(player.IsAlive()))
             {
                 yield break;
             }

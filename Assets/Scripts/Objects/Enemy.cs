@@ -4,123 +4,116 @@ using UnityEngine;
 
 public class Enemy : Moving_Object
 {
-    private Player _player;
     [SerializeField]
     private GameObject _laser;
-    //Components
-    private Animator _Anim;
-    private Collider2D _Collider;
-    //Audio
-    private AudioSource audio_destruction;
-    //Parameters
-    private float t_fire_avg = 3f;  //average time between shots
-    private float t_cooldown = 0f;  //varying cooldown of the fire
-    private bool fire_enabled = false;
-    private bool alive = true;    
+    private Transform _laserContainer;
+    private Animator _anim_Destruction;
+    private Collider2D _collider;
+    private AudioSource _audio_Destruction;
+    
+    private float _averageFirePause = 3f;
+    private float _firePause = 0f;
+    private bool _isFireEnabled = false;
+    private bool _isAlive = true;    
 
     protected override void Start()
     {
-        _player = transform.parent.parent.GetComponent<Spawn_Manager>()._player;        
-        _Anim = GetComponent<Animator>();
-        _Collider = GetComponent<Collider2D>();
-        //Audio components
-        audio_destruction = transform.parent.GetComponent<AudioSource>();
-
-        //Objects check
-        if (_player == null) {
-            Debug.LogWarning("Enemy could not obtain link to Player.");
-        }
-        if (_laser == null)
-        {
-            Debug.LogWarning("Enemy could not locate its laser.");
-        }
-        if (_Anim == null)
-        {
-            Debug.LogWarning("Enemy could not locate its animator.");
-        }        
-        if (_Collider == null)
-        {
-            Debug.LogWarning("Enemy could not locate its collider.");
-        }       
-        if (audio_destruction == null)
-        {
-            Debug.LogError("Enemy could not locate destruction audio in Enemy Container.");
-        }
-        //Parameter check
-        if (v <= 0)
+        FindObjects();
+        if (_speed <= 0)
         {
             Debug.LogWarning("Enemy speed is less or equal to 0.");
         }
-        if (t_fire_avg <= 0) {
-            Debug.LogWarning("Enemy fire interval is invalid.");
+        if (_averageFirePause <= 0)
+        {
+            Debug.LogError("Enemy fire interval is invalid.");
         }
 
         base.Start();
 
-        if(transform.position.x < 11f && transform.position.x > -11f && transform.position.y > -5.95f && transform.position.y < 7.5f)
-        {
-            Debug.LogWarning("An enemy appeared out of nowhere!");
-            dir = Vector3.down;
-            transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
+        _firePause = Random.Range(0, _averageFirePause/2);
+        StartCoroutine(FireCooldown());
+    }
 
-        t_cooldown = Random.Range(0, t_fire_avg/2);
-        StartCoroutine(Fire_cooldown());
+    private void FindObjects()
+    {
+        _laserContainer = transform.parent.parent.GetComponent<Spawn_Manager>().laserContainer.transform;
+        _anim_Destruction = GetComponent<Animator>();
+        _collider = GetComponent<Collider2D>();
+        _audio_Destruction = transform.parent.GetComponent<AudioSource>();
+
+        if (_laser == null)
+        {
+            Debug.LogWarning("Enemy could not locate its laser.");
+        }
+        if (_anim_Destruction == null)
+        {
+            Debug.LogWarning("Enemy could not locate its animator.");
+        }
+        if (_collider == null)
+        {
+            Debug.LogWarning("Enemy could not locate its collider.");
+        }
+        if (_audio_Destruction == null)
+        {
+            Debug.LogError("Enemy could not locate destruction audio in Enemy Container.");
+        }
     }
 
     protected override void Update()
     {
         base.Update();
         
-        if (fire_enabled && alive)
+        if (_isFireEnabled && _isAlive)
         {
             if (Random.value < 0.5f)
             {
-                Instantiate(_laser, transform.position - transform.up * 0.706f + transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), transform.parent.parent.GetComponent<Spawn_Manager>().laserContainer.transform);
+                Instantiate(_laser, transform.position - transform.up * 0.706f + transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), _laserContainer);
             }
-            else {
-                Instantiate(_laser, transform.position - transform.up * 0.706f - transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), transform.parent.parent.GetComponent<Spawn_Manager>().laserContainer.transform);
+            else
+            {
+                Instantiate(_laser, transform.position - transform.up * 0.706f - transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), _laserContainer);
             }
-            t_cooldown = Random.Range(0.8f * t_fire_avg, 1.2f * t_fire_avg);
-            StartCoroutine(Fire_cooldown());
+
+            _firePause = Random.Range(0.8f * _averageFirePause, 1.2f * _averageFirePause);
+            StartCoroutine(FireCooldown());
         }
     }
 
-    IEnumerator Fire_cooldown()
+    IEnumerator FireCooldown()
     {
-        fire_enabled = false;
-        yield return new WaitForSeconds(t_cooldown);
-        fire_enabled = true;
+        _isFireEnabled = false;
+        yield return new WaitForSeconds(_firePause);
+        _isFireEnabled = true;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Fire"))
         {                     
-            _Collider.enabled = false;
+            _collider.enabled = false;
             other.gameObject.SetActive(false);
             other.transform.GetComponent<Laser>().AddScore(1);
-            alive = false;
-            _Anim.SetTrigger("Enemy_dead");           
-            audio_destruction.PlayOneShot(audio_destruction.clip);
+            _isAlive = false;
+            _anim_Destruction.SetTrigger("Enemy_dead");           
+            _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
             Destroy(other.gameObject);
             Destroy(transform.gameObject, 2.37f);            
         }
         if (other.CompareTag("Player"))
         {
-            _Collider.enabled = false;
-            alive = false;
-            other.GetComponent<Player>().Enemy_collide();
-            _Anim.SetTrigger("Enemy_dead");
-            audio_destruction.PlayOneShot(audio_destruction.clip);
+            _collider.enabled = false;
+            _isAlive = false;
+            other.GetComponent<Player>().EnemyCollision();
+            _anim_Destruction.SetTrigger("Enemy_dead");
+            _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
             Destroy(transform.gameObject, 2.37f);
         }
         if (other.CompareTag("Asteroid"))
         {
-            _Collider.enabled = false;
-            alive = false;
-            _Anim.SetTrigger("Enemy_dead");            
-            audio_destruction.PlayOneShot(audio_destruction.clip);
+            _collider.enabled = false;
+            _isAlive = false;
+            _anim_Destruction.SetTrigger("Enemy_dead");            
+            _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
             Destroy(transform.gameObject, 2.37f);
         }       
     }    
