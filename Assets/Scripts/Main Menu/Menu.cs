@@ -6,46 +6,42 @@ using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
-    //Objects
     private Text _txt_SingleScore, _txt_CoopScore;
     private GameObject _pnl_Buttons, _pnl_Score, _txt_Credits;
-    //Display triggers
+    
     private bool _isCredits = false;
     private bool _isScores = false;
-    //Score data
     private string _singleScore, _coopScore;
 
     private void Start()
     {
-        Debug.Log("Loaded Main_Menu.");
+        Debug.Log("Loaded Main Menu.");
         
         FindObjects();
-        //Initial settings
+
         _txt_Credits.SetActive(false);
         _pnl_Buttons.SetActive(true);
         _pnl_Score.SetActive(false);
-        //Getting scores
+
         _singleScore = PlayerPrefs.GetInt("Single",0).ToString();
         _coopScore = PlayerPrefs.GetInt("Coop",0).ToString();        
     }
 
     private void FindObjects()
     {
-        //variable for children search
         Transform child;
-
         for (int i = 0; i < transform.childCount; i++)
         {
             child = transform.GetChild(i);
             switch (child.name)
             {
-                case "Credits_text":
+                case "Credits Text":
                     _txt_Credits = child.gameObject;
                     break;
-                case "Buttons_panel":
+                case "Buttons Panel":
                     _pnl_Buttons = child.gameObject;
                     break;
-                case "Score_panel":
+                case "Score Panel":
                     _pnl_Score = child.gameObject;
                     break;
             }
@@ -53,7 +49,7 @@ public class Menu : MonoBehaviour
 
         if (_pnl_Score == null)
         {
-            Debug.LogError("Main Menu could not locate Score panel.");
+            Debug.LogError("Main Menu could not locate Score Panel.");
         }
         else
         {
@@ -62,32 +58,31 @@ public class Menu : MonoBehaviour
                 child = _pnl_Score.transform.GetChild(i);
                 switch (child.name)
                 {
-                    case "Single_Score_text":
+                    case "Single Score Text":
                         _txt_SingleScore = child.GetComponent<Text>();
                         break;
-                    case "Coop_Score_text":
+                    case "Coop Score Text":
                         _txt_CoopScore = child.GetComponent<Text>();
                         break;
                 }
             }
         }
 
-        //Check objects
         if (_txt_Credits == null)
         {
-            Debug.LogError("Main Menu could not locate Credits text.");
+            Debug.LogError("Main Menu could not locate Credits Text.");
         }
         if (_pnl_Buttons == null)
         {
-            Debug.LogError("Main Menu could not locate Buttons panel.");
+            Debug.LogError("Main Menu could not locate Buttons Panel.");
         }
         if (_txt_SingleScore == null)
         {
-            Debug.LogError("Main Menu could not locate Single Score text.");
+            Debug.LogError("Main Menu could not locate Single Score Text.");
         }
         if (_txt_CoopScore == null)
         {
-            Debug.LogError("Main Menu could not locate Coop Score text.");
+            Debug.LogError("Main Menu could not locate Coop Score Text.");
         }
     }
 
@@ -97,11 +92,11 @@ public class Menu : MonoBehaviour
         {
             if (_isScores)
             {
-                BackFromPause_Button();
+                BackFromPauseButton();
             }
             else
             {
-                Exit_Button();
+                ExitButton();
             }
         }
     }
@@ -114,17 +109,17 @@ public class Menu : MonoBehaviour
         _isCredits = false;
     }
     
-    public void Start_Button()
+    public void SinglePlayerButton()
     {
-        SceneManager.LoadScene("Level_01");
+        SceneManager.LoadScene(1);
     }
 
-    public void Coop_Button()
+    public void CoopButton()
     {
-        SceneManager.LoadScene("Coop_Level_01");
+        SceneManager.LoadScene(2);
     }
 
-    public void Scores_Button()
+    public void ScoresButton()
     {
         _isScores = true;
         _pnl_Buttons.SetActive(false);
@@ -134,7 +129,7 @@ public class Menu : MonoBehaviour
         _txt_CoopScore.text = _coopScore;
     }    
 
-    public void ClearSingleScore_Button()
+    public void ClearSingleScoreButton()
     {
         PlayerPrefs.SetInt("Single", 0);
         PlayerPrefs.Save();
@@ -142,7 +137,7 @@ public class Menu : MonoBehaviour
         _txt_SingleScore.text = _singleScore;
     }
 
-    public void ClearCoopScore_Button()
+    public void ClearCoopScoreButton()
     {
         PlayerPrefs.SetInt("Coop", 0);
         PlayerPrefs.Save();
@@ -150,14 +145,14 @@ public class Menu : MonoBehaviour
         _txt_CoopScore.text = _coopScore;
     }
 
-    public void BackFromPause_Button()
+    public void BackFromPauseButton()
     {
         _pnl_Score.SetActive(false);
-       _isScores = false;
+        _isScores = false;
         _pnl_Buttons.SetActive(true);        
     }
 
-    public void Credits_Button()
+    public void CreditsButton()
     {
         if (!_isCredits)
         {
@@ -166,7 +161,7 @@ public class Menu : MonoBehaviour
         }
     }
 
-    public void Exit_Button()
+    public void ExitButton()
     {
         Application.Quit();
     }

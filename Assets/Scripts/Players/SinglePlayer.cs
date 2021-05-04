@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Single_Player : Player
+public class SinglePlayer : Player
 {
     protected override void InitialSetting()
     {
@@ -16,7 +16,7 @@ public class Single_Player : Player
 
     protected override void Update()
     {
-        if (_isUserControlled && !Game_Manager.isPaused)
+        if (_isUserControlled && !GameManager.isPaused)
         {
             if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && _isFireEnabled)
             {

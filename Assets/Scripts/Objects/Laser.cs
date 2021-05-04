@@ -11,7 +11,7 @@ public class Laser : MonoBehaviour
     {
         if (_velocity <= 0)
         {
-            Debug.LogWarning("Laser speed is equal to or less than 0.");
+            Debug.LogAssertion("Laser speed is equal to or less than 0.");
         }
     }
         
@@ -34,7 +34,14 @@ public class Laser : MonoBehaviour
 
     public void SetPlayer(Player player)
     {
-        _playerSource = player;
+        if (player == null)
+        {
+            Debug.LogError("Laser was handled an empty player.");
+        }
+        else
+        {
+            _playerSource = player;
+        }
     }
 
     public void AddScore(int score)

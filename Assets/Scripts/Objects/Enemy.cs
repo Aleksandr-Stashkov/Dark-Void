@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : Moving_Object
+public class Enemy : MovingObject
 {
     [SerializeField]
     private GameObject _laser;
-    private Transform _laserContainer;
-    private Animator _anim_Destruction;
+    private Transform _laserContainer;    
     private Collider2D _collider;
     private AudioSource _audio_Destruction;
-    
+
+    private Animator _anim_Destruction;
+    private int _anim_ID_IsEnemyDead = 0;
+    private float _anim_Length;
+
+    private int _collisionDamage = 1;
     private float _averageFirePause = 3f;
     private float _firePause = 0f;
     private bool _isFireEnabled = false;
@@ -19,13 +23,14 @@ public class Enemy : Moving_Object
     protected override void Start()
     {
         FindObjects();
-        if (_speed <= 0)
-        {
-            Debug.LogWarning("Enemy speed is less or equal to 0.");
-        }
+       
         if (_averageFirePause <= 0)
         {
-            Debug.LogError("Enemy fire interval is invalid.");
+            Debug.LogAssertion("Enemy fire interval is invalid.");
+        }
+        if (_collisionDamage < 0)
+        {
+            Debug.LogAssertion("Enemy collision damage is negative.");
         }
 
         base.Start();
@@ -36,26 +41,33 @@ public class Enemy : Moving_Object
 
     private void FindObjects()
     {
-        _laserContainer = transform.parent.parent.GetComponent<Spawn_Manager>().laserContainer.transform;
         _anim_Destruction = GetComponent<Animator>();
+        if (_anim_Destruction == null)
+        {
+            Debug.LogError("Enemy could not locate its animator.");
+        }
+        _anim_ID_IsEnemyDead = Animator.StringToHash("isEnemyDead");
+        _anim_Length = _anim_Destruction.runtimeAnimatorController.animationClips[0].length;
+
+        _laserContainer = transform.parent.parent.GetComponent<SpawnManager>().LaserContainer();        
         _collider = GetComponent<Collider2D>();
         _audio_Destruction = transform.parent.GetComponent<AudioSource>();
 
         if (_laser == null)
         {
-            Debug.LogWarning("Enemy could not locate its laser.");
-        }
-        if (_anim_Destruction == null)
-        {
-            Debug.LogWarning("Enemy could not locate its animator.");
-        }
+            Debug.LogError("Enemy could not locate its laser.");
+        }        
         if (_collider == null)
         {
-            Debug.LogWarning("Enemy could not locate its collider.");
+            Debug.LogError("Enemy could not locate its collider.");
         }
         if (_audio_Destruction == null)
         {
             Debug.LogError("Enemy could not locate destruction audio in Enemy Container.");
+        }
+        if (_anim_ID_IsEnemyDead == 0)
+        {
+            Debug.LogError("Enemy could not locate isEnemyDead parameter of the Animator.");
         }
     }
 
@@ -94,25 +106,25 @@ public class Enemy : Moving_Object
             other.gameObject.SetActive(false);
             other.transform.GetComponent<Laser>().AddScore(1);
             _isAlive = false;
-            _anim_Destruction.SetTrigger("Enemy_dead");           
+            _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);           
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
             Destroy(other.gameObject);
-            Destroy(transform.gameObject, 2.37f);            
+            Destroy(transform.gameObject, _anim_Length);            
         }
         if (other.CompareTag("Player"))
         {
             _collider.enabled = false;
             _isAlive = false;
-            other.GetComponent<Player>().EnemyCollision();
-            _anim_Destruction.SetTrigger("Enemy_dead");
+            other.GetComponent<Player>().EnemyCollision(_collisionDamage);
+            _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
-            Destroy(transform.gameObject, 2.37f);
+            Destroy(transform.gameObject, _anim_Length);
         }
         if (other.CompareTag("Asteroid"))
         {
             _collider.enabled = false;
             _isAlive = false;
-            _anim_Destruction.SetTrigger("Enemy_dead");            
+            _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);            
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
             Destroy(transform.gameObject, 2.37f);
         }       

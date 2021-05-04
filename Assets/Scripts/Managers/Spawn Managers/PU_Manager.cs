@@ -29,16 +29,19 @@ public class PU_Manager : MonoBehaviour
 
     public void Create_PU_TripleFire()
     {
-        Instantiate(_PU_TripleFire, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
+        GameObject new_PU = Instantiate(_PU_TripleFire, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
+        new_PU.GetComponent<MovingObject>().SetSpeed(3f);
     }
 
     public void Create_PU_SpeedUp()
     {
-        Instantiate(_PU_SpeedUp, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
+        GameObject new_PU = Instantiate(_PU_SpeedUp, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
+        new_PU.GetComponent<MovingObject>().SetSpeed(3f);
     }
 
     public void Create_PU_Shield()
     {
-        Instantiate(_PU_Shield, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
+        GameObject new_PU = Instantiate(_PU_Shield, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
+        new_PU.GetComponent<MovingObject>().SetSpeed(3f);
     }
 }

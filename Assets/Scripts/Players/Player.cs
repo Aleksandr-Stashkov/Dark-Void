@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private Spawn_Manager _spawnManager;
+    private Transform _laserContainer;
     protected UI_Manager _UI_Manager;
     //Associated objects
     private GameObject _shield, _thruster, _damage1, _damage2, _damage3;    
@@ -32,9 +32,6 @@ public class Player : MonoBehaviour
     private float _laserCooldownDuration = 0.1f;
     private bool _isTripleFire = false;
     private float _tripleFireDuration = 5f;
-    //Damage
-    private int _damageOnEnemyCollision = 1;
-    private int _damageOnObjectCollision = 1;
     //Player stat
     protected int _lives = 4;
     protected int _score = 0;
@@ -42,8 +39,8 @@ public class Player : MonoBehaviour
     private Animator _anim_Turning;
     private int _anim_ID_TurnLeft, _anim_ID_TurnRight; //ids for Animator variables
     private bool _isThrustOn = false;
-    private bool _wasThrustOn = false; //for prevention of excess changes in transform   
-    private bool _wasTurningLeft = false; //previous turn animation triggers (for prevention of excess changes in Animator)
+    private bool _wasThrustOn = false; //for prevention of excess changes in components  
+    private bool _wasTurningLeft = false;
     private bool _wasTurningRight = false;
     //Collision counters
     private int _fireCooldownCount = 0;
@@ -62,14 +59,15 @@ public class Player : MonoBehaviour
 
     private void FindObjects()
     {
-        _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();
+        _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();        
+
         _anim_Turning = GetComponent<Animator>();
         if (_anim_Turning == null)
         {
             Debug.LogError("Player could not locate its animator.");
         }
         _anim_ID_TurnLeft = Animator.StringToHash("Turn_Left");
-        _anim_ID_TurnRight = Animator.StringToHash("Turn_Right");
+        _anim_ID_TurnRight = Animator.StringToHash("Turn_Right");        
         _audio_Source = GetComponent<AudioSource>();
 
         Transform child;
@@ -104,10 +102,6 @@ public class Player : MonoBehaviour
 
     private void CheckObjects()
     {
-        if (_spawnManager == null)
-        {
-            Debug.LogError("Player could not locate Spawn Manager.");
-        }
         if (_UI_Manager == null)
         {
             Debug.LogError("Player could not obtain link to UI Canvas.");
@@ -170,24 +164,24 @@ public class Player : MonoBehaviour
     {
         if (_sidewardSpeed <= 0)
         {
-            Debug.LogWarning("Player horizontal speed is equal to or less than 0.");
+            Debug.LogAssertion("Player horizontal speed is equal to or less than 0.");
         }
         if (_forwardSpeed <= 0)
         {
-            Debug.LogWarning("Player forward speed is equal to or less than 0.");
+            Debug.LogAssertion("Player forward speed is equal to or less than 0.");
         }
         if (_backwardSpeed <= 0)
         {
-            Debug.LogWarning("Player backward speed is equal to or less than 0.");
+            Debug.LogAssertion("Player backward speed is equal to or less than 0.");
         }
         if (_lives <= 0)
         {
-            Debug.LogError("Player health is set below 1.");
+            Debug.LogAssertion("Player health is set below 1.");
         }
         if (_isUserControlled)
         {
             Debug.LogWarning("User will control the Player from the start.");
-        }
+        }       
     }
 
     protected virtual void InitialSetting()
@@ -363,7 +357,7 @@ public class Player : MonoBehaviour
     {
         if (_isTripleFire == true)
         {
-            GameObject newTripleFire = Instantiate(_tripleLaser, transform.position, transform.rotation, _spawnManager.laserContainer.transform);
+            GameObject newTripleFire = Instantiate(_tripleLaser, transform.position, transform.rotation, _laserContainer);
             Laser[] lasers = newTripleFire.GetComponentsInChildren<Laser>();
             foreach (Laser laser in lasers)
             {
@@ -375,7 +369,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            GameObject newLaser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _spawnManager.laserContainer.transform);
+            GameObject newLaser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _laserContainer);
             newLaser.GetComponent<Laser>().SetPlayer(this);
             _audio_Source.PlayOneShot(_audio_Fire);
         }
@@ -442,12 +436,12 @@ public class Player : MonoBehaviour
                 break;
             case "Fire_enemy":
                 Destroy(other.gameObject);
-                ObjectCollision();
+                ObjectCollision(1);
                 break;
         }
     }
     
-    public void EnemyCollision()
+    public void EnemyCollision(int damage)
     {
         AddScore(1);
         if (_shield.activeSelf)
@@ -456,11 +450,11 @@ public class Player : MonoBehaviour
         }
         else
         {
-          TakeDamage(_damageOnEnemyCollision);         
+          TakeDamage(damage);         
         }
     }
     
-    public void ObjectCollision()
+    public void ObjectCollision(int damage)
     {
         if (_shield.activeSelf)
         {
@@ -468,7 +462,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            TakeDamage(_damageOnObjectCollision);            
+            TakeDamage(damage);       
         }
     }
     
@@ -546,7 +540,7 @@ public class Player : MonoBehaviour
     protected IEnumerator Stop_rotation(Vector3 forwardDirection, float stopDuration, float endTime)
     {
         if (stopDuration == 0) {
-            Debug.LogError("Coroutine Stop_rotation got 0 as the time of execution.");
+            Debug.LogAssertion("Coroutine Stop_rotation got 0 as the time of execution.");
             yield return null;
         }
 
@@ -594,15 +588,15 @@ public class Player : MonoBehaviour
 
     public virtual bool IsPlayer1() { return true; }
 
-    public void SetSpawnManager(Spawn_Manager spawnManager) 
+    public void SetLaserContainer(Transform laserContainer) 
     {
-        if (spawnManager == null)
+        if (laserContainer == null)
         {
-            Debug.LogError("Player was handled an empty Spawn Manager.");
+            Debug.LogAssertion("Player was handled an empty Laser Container.");
         }
         else
         {
-            _spawnManager = spawnManager;
+            _laserContainer = laserContainer;
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Game_Manager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     private UI_Manager _UI_Manager;    
     private bool _isCoop = false;    

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy_Manager : MonoBehaviour
+public class EnemyManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject _enemy;
@@ -21,19 +21,19 @@ public class Enemy_Manager : MonoBehaviour
         {
             case WaveDirection.down:
                 GameObject newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
-                newEnemy.GetComponent<Enemy>().SetReturn(isTurningBack);
+                newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
             case WaveDirection.up:
                 newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
-                newEnemy.GetComponent<Enemy>().SetReturn(isTurningBack);
+                newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
             case WaveDirection.right:
                 newEnemy = Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
-                newEnemy.GetComponent<Enemy>().SetReturn(isTurningBack);
+                newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
             case WaveDirection.left:
                 newEnemy = Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
-                newEnemy.GetComponent<Enemy>().SetReturn(isTurningBack);
+                newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
         }
     }

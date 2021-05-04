@@ -5,17 +5,15 @@ using UnityEngine;
 //Wave dircetion
 public enum WaveDirection { down, up, right, left };
 
-public class Spawn_Manager : MonoBehaviour
+public class SpawnManager : MonoBehaviour
 {
-    [HideInInspector]
-    public Player player;
+    protected Player _player;
     protected AudioSource _audio_Background;
-    //Containers' managers
-    [HideInInspector]
-    public GameObject laserContainer;
+    //Containers' managers    
+    protected Transform _laserContainer;
     private PU_Manager _powerUpManager;
-    private Enemy_Manager _enemyManager;
-    private Object_Manager _objectManager;    
+    private EnemyManager _enemyManager;
+    private ObjectManager _objectManager;    
     //Timeline
     protected float _playerEntranceDuration; //time for player to reach its starting position
     protected float _waveStartPause = 4f;
@@ -46,30 +44,30 @@ public class Spawn_Manager : MonoBehaviour
             switch (child.name)
             {
                 case "LaserContainer":
-                    laserContainer = child.gameObject;
+                    _laserContainer = child.transform;
                     break;
                 case "EnemyContainer":
-                    _enemyManager = child.gameObject.GetComponent<Enemy_Manager>();
+                    _enemyManager = child.gameObject.GetComponent<EnemyManager>();
                     break;
                 case "PUContainer":
                     _powerUpManager = child.gameObject.GetComponent<PU_Manager>();
                     break;
                 case "ObjectContainer":
-                    _objectManager = child.gameObject.GetComponent<Object_Manager>();
+                    _objectManager = child.gameObject.GetComponent<ObjectManager>();
                     break;
                 default:
                     Debug.LogWarning("There is an unrecognized child of Spawn Manager.");
                     break;
             }
         }
-        _audio_Background = GameObject.FindGameObjectWithTag("Audio_Manager").GetComponent<AudioSource>();
+        _audio_Background = GetComponent<AudioSource>();
 
         CheckObjects();
     }
 
     private void CheckObjects()
     {
-        if (laserContainer == null)
+        if (_laserContainer == null)
         {
             Debug.LogError("Spawn Manager could not locate Laser Container.");
         }
@@ -95,15 +93,15 @@ public class Spawn_Manager : MonoBehaviour
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Asteroid Trigger Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved negative spawn period.");
         }
         if (spawnPeriodDeviation == 0)
         {
-            Debug.LogAssertion("You can use a shortened version of Asteroid Trigger Wave call without Period Deviation.");
+            Debug.LogWarning("You can use a shortened version of Asteroid Trigger Wave call without Period Deviation.");
         }
 
         yield return new WaitForSeconds(startPause);        
@@ -128,15 +126,15 @@ public class Spawn_Manager : MonoBehaviour
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Asteroid Trigger Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved negative spawn period.");
         }
         if (endPause == 0)
         {
-            Debug.LogAssertion("You can use a shortened version of Asteroid Trigger Wave call without End Pause.");
+            Debug.LogWarning("You can use a shortened version of Asteroid Trigger Wave call without End Pause.");
         }
 
         yield return new WaitForSeconds(startPause);
@@ -160,11 +158,11 @@ public class Spawn_Manager : MonoBehaviour
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Asteroid Trigger Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved negative spawn period.");
         }
 
         yield return new WaitForSeconds(startPause);
@@ -187,15 +185,15 @@ public class Spawn_Manager : MonoBehaviour
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Asteroid Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Asteroid Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Wave recieved negative spawn period.");
         }
         if (spawnPeriodDeviation == 0)
         {
-            Debug.LogAssertion("You can use a shortened version of Asteroid Wave call without Period Deviation.");
+            Debug.LogWarning("You can use a shortened version of Asteroid Wave call without Period Deviation.");
         }
 
         yield return new WaitForSeconds(startPause);
@@ -220,15 +218,15 @@ public class Spawn_Manager : MonoBehaviour
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Asteroid Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Asteroid Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Wave recieved negative spawn period.");
         }
         if (endPause == 0)
         {
-            Debug.LogAssertion("You can use a shortened version of Asteroid Wave call without End Pause.");
+            Debug.LogWarning("You can use a shortened version of Asteroid Wave call without End Pause.");
         }
 
         yield return new WaitForSeconds(startPause);
@@ -252,11 +250,11 @@ public class Spawn_Manager : MonoBehaviour
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Asteroid Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Asteroid Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Wave recieved negative spawn period.");
         }
 
         yield return new WaitForSeconds(startPause);
@@ -274,21 +272,20 @@ public class Spawn_Manager : MonoBehaviour
             }
         }
     }
-    
-    //Without Power Ups
+        
     protected IEnumerator EnemyWave(float waveEndTime, float startPause, float endPause, float spawnPeriod, float spawnPeriodDeviation, WaveDirection direction)
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Enemy Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Enemy Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Enemy Wave recieved negative spawn period.");
+            Debug.LogAssertion("Enemy Wave recieved negative spawn period.");
         }
         if (spawnPeriodDeviation == 0)
         {
-            Debug.LogAssertion("You can use a shortened version of Enemy Wave call without Period Deviation.");
+            Debug.LogWarning("You can use a shortened version of Enemy Wave call without Period Deviation.");
         }
 
         yield return new WaitForSeconds(startPause);
@@ -313,15 +310,15 @@ public class Spawn_Manager : MonoBehaviour
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Enemy Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Enemy Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Enemy Wave recieved negative spawn period.");
+            Debug.LogAssertion("Enemy Wave recieved negative spawn period.");
         }
         if (endPause == 0)
         {
-            Debug.LogAssertion("You can use a shortened version of Enemy Wave call without EndPause.");
+            Debug.LogWarning("You can use a shortened version of Enemy Wave call without EndPause.");
         }
 
         yield return new WaitForSeconds(startPause);
@@ -340,16 +337,16 @@ public class Spawn_Manager : MonoBehaviour
         }
         yield return new WaitForSeconds(endPause);
     }
-    //Period Deviation = 0; End Pause =0
+    //Period Deviation = 0; End Pause = 0
     protected IEnumerator EnemyWave(float waveEndTime, float startPause, float spawnPeriod, WaveDirection direction)
     {
         if (waveEndTime <= Time.timeSinceLevelLoad)
         {
-            Debug.LogWarning("Enemy Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Enemy Wave recieved invalid wave end time and will not start.");
         }
         if (spawnPeriod < 0)
         {
-            Debug.LogError("Enemy Wave recieved negative spawn period.");
+            Debug.LogAssertion("Enemy Wave recieved negative spawn period.");
         }        
 
         yield return new WaitForSeconds(startPause);
@@ -400,12 +397,14 @@ public class Spawn_Manager : MonoBehaviour
         yield break;
     }
     //Asteroid destruction triggers the wave
-    public void DestroyedAsteroid()
+    public void TriggerWave()
     {
         if (!_isAsteroidDestroyed)
         {
             _isAsteroidDestroyed = true;
             StartCoroutine(MainTimeline());
         }
-    }      
+    }
+
+    public Transform LaserContainer() { return _laserContainer; }
 }

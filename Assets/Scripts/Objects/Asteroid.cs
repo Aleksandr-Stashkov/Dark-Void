@@ -3,27 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Asteroid : Moving_Object
+public class Asteroid : MovingObject
 {
-    private float _rotationalSpeed = 0f; //in rpm
+    [SerializeField]
+    private GameObject _explosion;
+    private SpawnManager _spawnManager;
+    private AudioSource _audio_Destruction;
+
+    private int _collisionDamege = 1;
     private float _rotationalSpeedMin = 1f;
     private float _rotationalSpeedMax = 11f;
     private bool _isWaveTrigger = false;
-
-    [SerializeField]
-    private GameObject _explosion;
-    private Spawn_Manager _spawnManager;    
-    private AudioSource _audio_Destruction;
+    private float _explosionAnimationLength = 0;
 
     protected override void Start()
     {
         FindObjects();
         
         _speed = 1.5f;
-        _rotationalSpeed = Random.Range(_rotationalSpeedMin, _rotationalSpeedMax) * (Random.Range(0, 2) * 2 - 1);               
+        _rotationalSpeed = Random.Range(_rotationalSpeedMin, _rotationalSpeedMax) * (Random.Range(0, 2) * 2 - 1);
+        _isRotating = true;
         if (Mathf.Abs(_rotationalSpeed) < _rotationalSpeedMin || Mathf.Abs(_rotationalSpeed) > _rotationalSpeedMax)
         {
-            Debug.LogWarning("The asteroid's rotational speed is out of the set range.");
+            Debug.LogAssertion("The asteroid's rotational speed is out of the set range.");
         }
         
         base.Start();
@@ -31,12 +33,21 @@ public class Asteroid : Moving_Object
 
     private void FindObjects()
     {
-        _spawnManager = transform.parent.parent.GetComponent<Spawn_Manager>();
-        _audio_Destruction = transform.parent.GetComponent<AudioSource>();
         if (_explosion == null)
         {
             Debug.LogError("Asteroid could not locate Explosion animation.");
         }
+        else
+        {
+            _explosionAnimationLength = _explosion.GetComponent<Animator>().runtimeAnimatorController.animationClips[0].length;
+            if (_explosionAnimationLength == 0)
+            {
+                Debug.LogAssertion("Asteroid could not determine the length of Explosion animation.");
+            }
+        }
+
+        _spawnManager = transform.parent.parent.GetComponent<SpawnManager>();
+        _audio_Destruction = transform.parent.GetComponent<AudioSource>();        
         if (_spawnManager == null)
         {
             Debug.LogError("Asteroid could not locate Spawn Manager.");
@@ -45,18 +56,14 @@ public class Asteroid : Moving_Object
         {
             Debug.LogError("Asteroid could not locate audio in the Object Container.");
         }
-    }
-        
-    protected override void Update()
-    {
-        base.Update();
-        transform.Rotate(0, 0, Time.deltaTime * _rotationalSpeed * 6);
-    }
+    }   
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        GameObject _newExplosion = Instantiate(_explosion, transform.position, transform.rotation, transform.parent);
-        _newExplosion.transform.localScale = transform.localScale;    
+        GameObject newExplosion = Instantiate(_explosion, transform.position, transform.rotation, transform.parent);
+        newExplosion.transform.localScale = transform.localScale;
+        newExplosion.GetComponent<MovingObject>().FullSetup(_speed, _rotationalSpeed, _forwardDirection, false);
+
         transform.gameObject.SetActive(false);
         _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
 
@@ -65,16 +72,16 @@ public class Asteroid : Moving_Object
             Destroy(other.gameObject);            
             if (_isWaveTrigger == true)
             {
-                _spawnManager.DestroyedAsteroid();
+                _spawnManager.TriggerWave();
             }           
         }
         else if (other.CompareTag("Player"))
         {
-            other.GetComponent<Player>().ObjectCollision();            
+            other.GetComponent<Player>().ObjectCollision(_collisionDamege);            
         }
 
-        Destroy(_newExplosion.gameObject, 2.37f);
-        Destroy(transform.gameObject, 0.28f);
+        Destroy(newExplosion.gameObject, _explosionAnimationLength);
+        Destroy(transform.gameObject);
     }
     
     public void SetAsWaveTrigger()

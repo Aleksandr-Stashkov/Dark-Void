@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Coop_Player : Player
+public class CoopPlayer : Player
 {
     [SerializeField]
     private bool _isPlayer1 = false;
@@ -31,7 +31,7 @@ public class Coop_Player : Player
 
     protected override void Update()
     {
-        if (_isUserControlled && !Game_Manager.isPaused)
+        if (_isUserControlled && !GameManager.isPaused)
         {
             if ((Input.GetKeyDown(KeyCode.Space) && _isPlayer1 && _isFireEnabled) || (Input.GetMouseButtonDown(0) && !_isPlayer1 && _isFireEnabled))
             {

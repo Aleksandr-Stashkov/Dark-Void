@@ -6,8 +6,7 @@ using TMPro;
 
 public class UI_Manager : MonoBehaviour
 {
-    //Game Manager
-    private Game_Manager _GameManager;
+    private GameManager _gameManager;
     private bool _isCoop = false;
     //Main UI elements
     private GameObject _pnl_Controls, _tmp_Restart, _tmp_NewRecord;
@@ -19,30 +18,21 @@ public class UI_Manager : MonoBehaviour
     private int _anim_ID_Pause; //Animator parameter id
     private float _anim_Length;
     private bool _isPauseMenuActive; //Interaction with buttons in Pause Menu
-    private bool _isBeingPaused; //Current direction of the Pause change (for correct animations and triggers)
-    //UI assets
+    private bool _isBeingPaused; //Current direction of the Pause change (for correct animation function)
+    
     [SerializeField]
     private Sprite[] _livesSprites;
-    //Display parameters
-    private float _t_GameOverReveal = 2f;
-    //Score data
+    
+    private float _gameOverRevealDuration = 2f;
+
     private int _score1, _score2;
     private int _record;
     private bool _isNewRecord = false;
 
     void Start()
     {
-        FindElements();        
-        //Getting record score
-        if (_isCoop)
-        {
-           _record = PlayerPrefs.GetInt("Coop",0);            
-        }
-        else
-        {
-            _record = PlayerPrefs.GetInt("Single",0);           
-        }
-
+        FindElements();
+        GetRecord();
         Initial_UI_Setting();
 
         if (_isCoop)
@@ -59,42 +49,42 @@ public class UI_Manager : MonoBehaviour
             child = transform.GetChild(i);
             switch (child.name)
             {
-                case "Score_text":
+                case "Score Text":
                     _txt_Score1 = child.GetComponent<Text>();
                     break;
-                case "Score2_text":
+                case "Score2 Text":
                     _txt_Score2 = child.GetComponent<Text>();
                     break;
-                case "Lives_image":
+                case "Lives Image":
                     _img_Lives1 = child.GetComponent<Image>();
                     break;
-                case "Lives2_image":
+                case "Lives2 Image":
                     _img_Lives2 = child.GetComponent<Image>();
                     break;
-                case "GameOver_text":
+                case "Game Over Text":
                     _txt_GameOver = child.GetComponent<Text>();
                     break;
-                case "Restart_TMP":
+                case "Restart TMP":
                     _tmp_Restart = child.gameObject;
                     break;
-                case "NewRecord_TMP":
+                case "New Record TMP":
                     _tmp_NewRecord = child.gameObject;
                     break;
-                case "Pause_Menu_panel":
+                case "Pause Menu Panel":
                     _pnl_PauseMenu = child.gameObject;
                     break;
-                case "Controls_panel":
+                case "Controls Panel":
                     _pnl_Controls = child.gameObject;
                     break;                
                 default:
-                    Debug.LogWarning("There is an unrecognized child of UI Canvas.");
+                    Debug.LogWarning("There is an unrecognized child of Canvas.");
                     break;
             }
         }
 
         if (_pnl_PauseMenu == null)
         {
-            Debug.LogError("UI Manager could not locate Pause Menu panel.");
+            Debug.LogError("UI Manager could not locate Pause Menu Panel.");
         }
         else
         {
@@ -103,13 +93,13 @@ public class UI_Manager : MonoBehaviour
             _anim_Length = _anim_Pause.runtimeAnimatorController.animationClips[0].length;
         }
         
-        if (_GameManager == null)
+        if (_gameManager == null)
         {
             Debug.LogError("UI Manager could not locate Game Manager.");
         }
         else
         {
-            _isCoop = _GameManager.IsCoop();
+            _isCoop = _gameManager.IsCoop();
         }
 
         CheckElements();
@@ -119,50 +109,62 @@ public class UI_Manager : MonoBehaviour
     {
         if (_txt_Score1 == null)
         {
-            Debug.LogError("UI Manager could not locate Score1 text.");
+            Debug.LogError("UI Manager could not locate Score1 Text.");
         }
         if (_img_Lives1 == null)
         {
-            Debug.LogError("UI Manager could not locate Lives1 image.");
+            Debug.LogError("UI Manager could not locate Lives1 Image.");
         }
         if (_txt_GameOver == null)
         {
-            Debug.LogError("UI Manager could not locate Game Over text.");
+            Debug.LogError("UI Manager could not locate Game Over Text.");
         }
         if (_tmp_Restart == null)
         {
-            Debug.LogError("UI Manager could not locate Restart text.");
+            Debug.LogError("UI Manager could not locate Restart Text.");
         }
         if (_tmp_NewRecord == null)
         {
-            Debug.LogError("UI Manager could not locate New Record text.");
+            Debug.LogError("UI Manager could not locate New Record Text.");
         }
         if (_anim_Pause == null)
         {
-            Debug.LogError("UI Manager could not locate Pause Menu's animator.");
+            Debug.LogError("UI Manager could not locate Pause Menu's Animator.");
         }
         if (_anim_ID_Pause == 0)
         {
-            Debug.LogError("UI Manager could not find Pause parameter of the Pause Menu animator.");
+            Debug.LogError("UI Manager could not find Pause parameter of the Pause Menu Animator.");
         }
         if (_anim_Length <= 0)
         {
-            Debug.LogWarning("Animation length for the Pause Menu is invalid.");
+            Debug.LogAssertion("Animation length for the Pause Menu is invalid.");
         }
         if (_isCoop)
         {
             if (_txt_Score2 == null)
             {
-                Debug.LogError("UI Manager could not locate Score2 text.");
+                Debug.LogError("UI Manager could not locate Score2 Text.");
             }
             if (_img_Lives2 == null)
             {
-                Debug.LogError("UI Manager could not locate Lives2 image.");
+                Debug.LogError("UI Manager could not locate Lives2 Image.");
             }
             if (_pnl_Controls == null)
             {
-                Debug.LogError("UI Manager could not locate Controls panel.");
+                Debug.LogError("UI Manager could not locate Controls Panel.");
             }
+        }
+    }
+
+    private void GetRecord()
+    {
+        if (_isCoop)
+        {
+            _record = PlayerPrefs.GetInt("Coop", 0);
+        }
+        else
+        {
+            _record = PlayerPrefs.GetInt("Single", 0);
         }
     }
 
@@ -220,11 +222,11 @@ public class UI_Manager : MonoBehaviour
         yield return new WaitForSeconds(120f);
         _pnl_Controls.SetActive(false);
     }
-    //Gradual reveal of the Game Over text
+    
     private IEnumerator GameOverReveal()
     {
         float step = 1f;
-        float fullBrightness = _t_GameOverReveal * 10;
+        float fullBrightness = _gameOverRevealDuration * 10f;
 
         _txt_GameOver.gameObject.SetActive(true);
         while (step <= fullBrightness)
@@ -253,21 +255,21 @@ public class UI_Manager : MonoBehaviour
         if (!_isBeingPaused)
         {
             Time.timeScale = 1;
-            Game_Manager.isPaused = false;
+            GameManager.isPaused = false;
             AudioListener.pause = false;
             _pnl_PauseMenu.SetActive(false);
         }
     }
 
-    public void SetGameManager(Game_Manager gameManager)
+    public void SetGameManager(GameManager gameManager)
     {
         if (gameManager == null)
         {
-            Debug.LogWarning("UI Manager was handled an empty Game Manager.");
+            Debug.LogAssertion("UI Manager was handled an empty Game Manager.");
         }
         else
         {
-            _GameManager = gameManager;
+            _gameManager = gameManager;
         }
     }
 
@@ -338,7 +340,7 @@ public class UI_Manager : MonoBehaviour
     public void GameOver()
     {
         StartCoroutine(GameOverReveal());
-        _GameManager.AllowRestart();
+        _gameManager.AllowRestart();
     }    
 
     public void Pause(bool isActive)
@@ -354,7 +356,7 @@ public class UI_Manager : MonoBehaviour
         }
         else
         {
-            Game_Manager.isPaused = true;
+            GameManager.isPaused = true;
             Time.timeScale = 0;
             AudioListener.pause = true;
             //Differnce between reverting the animation or starting it
@@ -371,7 +373,7 @@ public class UI_Manager : MonoBehaviour
         }
     }    
 
-    public void PauseResume_Button()
+    public void PauseResumeButton()
     {
         if (_isPauseMenuActive)
         {
@@ -379,23 +381,23 @@ public class UI_Manager : MonoBehaviour
         }
     }
 
-    public void PauseRestart_Button()
+    public void PauseRestartButton()
     {
         if (_isPauseMenuActive)
         {
-             _GameManager.ReloadScene();
+             _gameManager.ReloadScene();
         }
     }
 
-    public void PauseMainMenu_Button()
+    public void PauseMainMenuButton()
     {
         if (_isPauseMenuActive)
         {
-             _GameManager.LoadMainMenu();
+             _gameManager.LoadMainMenu();
         }
     }
 
-    public void PauseExit_Button()
+    public void PauseExitButton()
     {
         if (_isPauseMenuActive)
         {

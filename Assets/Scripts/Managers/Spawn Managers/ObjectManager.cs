@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Object_Manager : MonoBehaviour
+public class ObjectManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject _asteroid;
