@@ -15,43 +15,43 @@ public class EnemyManager : MonoBehaviour
         }
     }
     
-    public void CreateEnemy(WaveDirection direction, bool isTurningBack)
+    public void CreateEnemy(direction waveDirection, bool isTurningBack)
     {
-        switch (direction)
+        switch (waveDirection)
         {
-            case WaveDirection.down:
+            case direction.down:
                 GameObject newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
-            case WaveDirection.up:
+            case direction.up:
                 newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
-            case WaveDirection.right:
+            case direction.right:
                 newEnemy = Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
-            case WaveDirection.left:
+            case direction.left:
                 newEnemy = Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
         }
     }
     //with isTurningBack = false
-    public void CreateEnemy(WaveDirection direction)
+    public void CreateEnemy(direction waveDirection)
     {
-        switch (direction)
+        switch (waveDirection)
         {
-            case WaveDirection.down:
+            case direction.down:
                 Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
                 break;
-            case WaveDirection.up:
+            case direction.up:
                 Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
                 break;
-            case WaveDirection.right:
+            case direction.right:
                 Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
                 break;
-            case WaveDirection.left:
+            case direction.left:
                 Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
                 break;
 

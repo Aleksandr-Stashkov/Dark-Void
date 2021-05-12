@@ -24,9 +24,8 @@ public class Player : MonoBehaviour
     private float _backwardSpeed = 4.5f;
     private bool _isSpedUp = false;
     private float _speedUpFactor = 1.5f;
-    private float _speedUpDuration = 5f;
-    private enum PlayerDirection {up, down, right, left};
-    private PlayerDirection _forwardDirection = PlayerDirection.up;
+    private float _speedUpDuration = 5f;    
+    private direction _forwardDirection = direction.up;
     //Fire
     protected bool _isFireEnabled = true;
     private float _laserCooldownDuration = 0.1f;
@@ -224,7 +223,7 @@ public class Player : MonoBehaviour
 
         switch (_forwardDirection)
         {
-            case PlayerDirection.up:
+            case direction.up:
                 if (verticalInput > 0)
                 {
                     transform.Translate((Vector3.up * _forwardSpeed * verticalInput + Vector3.right * _sidewardSpeed * horizontalInput) * Time.deltaTime, Space.World);
@@ -237,7 +236,7 @@ public class Player : MonoBehaviour
                 }                
                 TurningAnimation(horizontalInput);
                 break;
-            case PlayerDirection.down:
+            case direction.down:
                 if (verticalInput >= 0)
                 {
                     transform.Translate((Vector3.up * _backwardSpeed * verticalInput + Vector3.right * _sidewardSpeed * horizontalInput) * Time.deltaTime, Space.World);
@@ -250,7 +249,7 @@ public class Player : MonoBehaviour
                 }
                 TurningAnimation(horizontalInput);
                 break;
-            case PlayerDirection.right:
+            case direction.right:
                 if (horizontalInput > 0)
                 {
                     transform.Translate((Vector3.up * _sidewardSpeed * verticalInput + Vector3.right * _forwardSpeed * horizontalInput) * Time.deltaTime, Space.World);
@@ -263,7 +262,7 @@ public class Player : MonoBehaviour
                 }
                 TurningAnimation(verticalInput);
                 break;
-            case PlayerDirection.left:
+            case direction.left:
                 if (horizontalInput >= 0)
                 {
                     transform.Translate((Vector3.up * _sidewardSpeed * verticalInput + Vector3.right * _backwardSpeed * horizontalInput) * Time.deltaTime, Space.World);

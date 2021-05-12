@@ -13,13 +13,13 @@ public class CoopSpawnManager : SpawnManager
         FindPlayers();
 
         _playerEntranceDuration = 7f;
-        _waveStartPause += _playerEntranceDuration;
+        //_waveStartPause += _playerEntranceDuration;
         _player.SetEntranceDuration(_playerEntranceDuration);
         _player2.SetEntranceDuration(_playerEntranceDuration);
 
         if (_player.IsAlive() && _player2.IsAlive())
         {
-            StartCoroutine(AsteroidTriggerWave(_waveStartPause + _waveDuration, _waveStartPause, _waveStartPause, _enemySpawnPeriod,WaveDirection.down));
+            StartCoroutine(AsteroidTriggerWave(_waveDuration, _waveStartPause + _playerEntranceDuration, _waveStartPause, _enemySpawnPeriod, direction.down));
         }
     }
 
@@ -76,25 +76,25 @@ public class CoopSpawnManager : SpawnManager
         _audio_Background.PlayDelayed(_waveStartPause / 4);
         while (_player.IsAlive() && _player2.IsAlive())
         {
-            yield return StartCoroutine(EnemyWave(_waveStartPause + _waveDuration, _waveStartPause, _waveEndPause, _enemySpawnPeriod, WaveDirection.down));
+            yield return StartCoroutine(EnemyWave(_waveDuration, _waveStartPause, _waveEndPause, _enemySpawnPeriod, direction.down));
             if (!(_player.IsAlive() && _player2.IsAlive()))
             {
                 yield break;
             }
-            StartCoroutine(PU_TripleFireWave(_waveStartPause + _waveEndPause + 2 * _waveDuration));
-            yield return StartCoroutine(EnemyWave(_waveStartPause + _waveEndPause + 2 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            StartCoroutine(PU_TripleFireWave(_waveDuration, direction.down));
+            yield return StartCoroutine(EnemyWave(_waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, direction.down));
             if (!(_player.IsAlive() && _player2.IsAlive()))
             {
                 yield break;
             }
-            StartCoroutine(PU_SpeedUpWave(_waveStartPause + 2 * _waveEndPause + 3 * _waveDuration));
-            yield return StartCoroutine(EnemyWave(_waveStartPause + 2 * _waveEndPause + 3 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            StartCoroutine(PU_SpeedUpWave(_waveDuration, direction.down));
+            yield return StartCoroutine(EnemyWave(_waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, direction.down));
             if (!(_player.IsAlive() && _player2.IsAlive()))
             {
                 yield break;
             }
-            StartCoroutine(PU_ShieldWave(_waveStartPause + 3 * _waveEndPause + 4 * _waveDuration));
-            yield return StartCoroutine(EnemyWave(_waveStartPause + 3 * _waveEndPause + 4 * _waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, WaveDirection.down));
+            StartCoroutine(PU_ShieldWave(_waveDuration, direction.down));
+            yield return StartCoroutine(EnemyWave(_waveDuration, 0, _waveEndPause, _enemySpawnPeriod, _enemySpawnPeriodDeviation, direction.down));
             if (!(_player.IsAlive() && _player2.IsAlive()))
             {
                 yield break;

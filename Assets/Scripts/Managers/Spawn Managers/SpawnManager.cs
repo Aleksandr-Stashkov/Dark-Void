@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //Wave dircetion
-public enum WaveDirection { down, up, right, left };
+public enum direction { down, up, right, left };
 
 public class SpawnManager : MonoBehaviour
 {
@@ -89,25 +89,48 @@ public class SpawnManager : MonoBehaviour
         }        
     }
     
-    protected IEnumerator AsteroidTriggerWave(float waveEndTime, float startPause, float endPause, float spawnPeriod, float spawnPeriodDeviation, WaveDirection direction)
+    protected IEnumerator AsteroidTriggerWave(float waveTotalDuration, float startPause, float endPause, float spawnPeriod, float spawnPeriodDeviation, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+        
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid Duration and will not start.");            
+        }       
+        else
+        {
+            waveEndTime += waveTotalDuration;
         }
+
         if (spawnPeriod < 0)
         {
-            Debug.LogAssertion("Asteroid Trigger Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved negative Spawn Period.");
         }
         if (spawnPeriodDeviation == 0)
         {
             Debug.LogWarning("You can use a shortened version of Asteroid Trigger Wave call without Period Deviation.");
         }
 
-        yield return new WaitForSeconds(startPause);        
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Asteroid Trigger Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+            startPause = 0f;
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
+        if (waveTotalDuration-startPause <= endPause)
+        {
+            Debug.LogAssertion("Asteroid Trigger Wave recieved End Pause incompatible with Wave Duration and will skip it.");
+            endPause = 0f;
+        }        
+        waveEndTime -= endPause;
+
         while (Time.timeSinceLevelLoad <= waveEndTime && !_isAsteroidDestroyed)
         {
-            _objectManager.CreateAsteroidTrigger(direction);
+            _objectManager.CreateAsteroidTrigger(waveDirection);
 
             float spawnPause = Random.Range((1f - spawnPeriodDeviation) * spawnPeriod, (1f + spawnPeriodDeviation) * spawnPeriod);            
             if (Time.timeSinceLevelLoad + spawnPause > waveEndTime)
@@ -122,12 +145,19 @@ public class SpawnManager : MonoBehaviour
         yield return new WaitForSeconds(endPause);
     }
     //Period Deviation = 0 
-    protected IEnumerator AsteroidTriggerWave(float waveEndTime, float startPause, float endPause, float spawnPeriod, WaveDirection direction)
+    protected IEnumerator AsteroidTriggerWave(float waveTotalDuration, float startPause, float endPause, float spawnPeriod, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+
         if (spawnPeriod < 0)
         {
             Debug.LogAssertion("Asteroid Trigger Wave recieved negative spawn period.");
@@ -137,10 +167,26 @@ public class SpawnManager : MonoBehaviour
             Debug.LogWarning("You can use a shortened version of Asteroid Trigger Wave call without End Pause.");
         }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Asteroid Trigger Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+            startPause = 0f;
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
+        if (waveTotalDuration - startPause <= endPause)
+        {
+            Debug.LogAssertion("Asteroid Trigger Wave recieved End Pause incompatible with Wave Duration and will skip it.");
+            endPause = 0f;
+        }
+        waveEndTime -= endPause;
+
         while (Time.timeSinceLevelLoad <= waveEndTime && !_isAsteroidDestroyed)
         {
-            _objectManager.CreateAsteroidTrigger(direction);
+            _objectManager.CreateAsteroidTrigger(waveDirection);
 
             if (Time.timeSinceLevelLoad + spawnPeriod > waveEndTime)
             {
@@ -154,21 +200,36 @@ public class SpawnManager : MonoBehaviour
         yield return new WaitForSeconds(endPause);
     }
     //Period Deviation = 0; End Pause = 0
-    protected IEnumerator AsteroidTriggerWave(float waveEndTime, float startPause, float spawnPeriod, WaveDirection direction)
+    protected IEnumerator AsteroidTriggerWave(float waveTotalDuration, float startPause, float spawnPeriod, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Trigger Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+
         if (spawnPeriod < 0)
         {
             Debug.LogAssertion("Asteroid Trigger Wave recieved negative spawn period.");
         }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Asteroid Trigger Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
         while (Time.timeSinceLevelLoad <= waveEndTime && !_isAsteroidDestroyed)
         {
-            _objectManager.CreateAsteroidTrigger(direction);
+            _objectManager.CreateAsteroidTrigger(waveDirection);
 
             if (Time.timeSinceLevelLoad + spawnPeriod > waveEndTime)
             {
@@ -181,25 +242,48 @@ public class SpawnManager : MonoBehaviour
         }
     }
     
-    protected IEnumerator AsteroidWave(float waveEndTime, float startPause, float endPause, float spawnPeriod, float spawnPeriodDeviation, WaveDirection direction)
+    protected IEnumerator AsteroidWave(float waveTotalDuration, float startPause, float endPause, float spawnPeriod, float spawnPeriodDeviation, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Asteroid Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+
         if (spawnPeriod < 0)
         {
-            Debug.LogAssertion("Asteroid Wave recieved negative spawn period.");
+            Debug.LogAssertion("Asteroid Wave recieved negative Spawn Period.");
         }
         if (spawnPeriodDeviation == 0)
         {
             Debug.LogWarning("You can use a shortened version of Asteroid Wave call without Period Deviation.");
         }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Asteroid Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+            startPause = 0f;
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
+        if (waveTotalDuration - startPause <= endPause)
+        {
+            Debug.LogAssertion("Asteroid Wave recieved End Pause incompatible with Wave Duration and will skip it.");
+            endPause = 0f;
+        }
+        waveEndTime -= endPause;
+
         while (Time.timeSinceLevelLoad <= waveEndTime)
         {
-            _objectManager.CreateAsteroid(direction);
+            _objectManager.CreateAsteroid(waveDirection);
 
             float spawnPause = Random.Range((1f - spawnPeriodDeviation) * spawnPeriod, (1f + spawnPeriodDeviation) * spawnPeriod);            
             if (Time.timeSinceLevelLoad + spawnPause > waveEndTime)
@@ -214,12 +298,19 @@ public class SpawnManager : MonoBehaviour
         yield return new WaitForSeconds(endPause);
     }
     //Period Deviation = 0
-    protected IEnumerator AsteroidWave(float waveEndTime, float startPause, float endPause, float spawnPeriod, WaveDirection direction)
+    protected IEnumerator AsteroidWave(float waveTotalDuration, float startPause, float endPause, float spawnPeriod, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Asteroid Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+
         if (spawnPeriod < 0)
         {
             Debug.LogAssertion("Asteroid Wave recieved negative spawn period.");
@@ -229,10 +320,26 @@ public class SpawnManager : MonoBehaviour
             Debug.LogWarning("You can use a shortened version of Asteroid Wave call without End Pause.");
         }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Asteroid Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+            startPause = 0f;
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
+        if (waveTotalDuration - startPause <= endPause)
+        {
+            Debug.LogAssertion("Asteroid Wave recieved End Pause incompatible with Wave Duration and will skip it.");
+            endPause = 0f;
+        }
+        waveEndTime -= endPause;
+
         while (Time.timeSinceLevelLoad <= waveEndTime)
         {
-            _objectManager.CreateAsteroid(direction);
+            _objectManager.CreateAsteroid(waveDirection);
 
             if (Time.timeSinceLevelLoad + spawnPeriod > waveEndTime)
             {
@@ -246,21 +353,36 @@ public class SpawnManager : MonoBehaviour
         yield return new WaitForSeconds(endPause);
     }
     //Period Deviation = 0; End Pause = 0
-    protected IEnumerator AsteroidWave(float waveEndTime, float startPause, float spawnPeriod, WaveDirection direction)
+    protected IEnumerator AsteroidWave(float waveTotalDuration, float startPause, float spawnPeriod, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Asteroid Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Asteroid Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+
         if (spawnPeriod < 0)
         {
             Debug.LogAssertion("Asteroid Wave recieved negative spawn period.");
         }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Asteroid Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
         while (Time.timeSinceLevelLoad <= waveEndTime)
         {
-            _objectManager.CreateAsteroid(direction);
+            _objectManager.CreateAsteroid(waveDirection);
 
             if (Time.timeSinceLevelLoad + spawnPeriod > waveEndTime)
             {
@@ -273,12 +395,18 @@ public class SpawnManager : MonoBehaviour
         }
     }
         
-    protected IEnumerator EnemyWave(float waveEndTime, float startPause, float endPause, float spawnPeriod, float spawnPeriodDeviation, WaveDirection direction)
+    protected IEnumerator EnemyWave(float waveTotalDuration, float startPause, float endPause, float spawnPeriod, float spawnPeriodDeviation, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Enemy Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Enemy Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+        
         if (spawnPeriod < 0)
         {
             Debug.LogAssertion("Enemy Wave recieved negative spawn period.");
@@ -288,10 +416,26 @@ public class SpawnManager : MonoBehaviour
             Debug.LogWarning("You can use a shortened version of Enemy Wave call without Period Deviation.");
         }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Enemy Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+            startPause = 0f;
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
+        if (waveTotalDuration - startPause <= endPause)
+        {
+            Debug.LogAssertion("Enemy Wave recieved End Pause incompatible with Wave Duration and will skip it.");
+            endPause = 0f;
+        }
+        waveEndTime -= endPause;
+
         while (Time.timeSinceLevelLoad <= waveEndTime)
         {
-            _enemyManager.CreateEnemy(direction);
+            _enemyManager.CreateEnemy(waveDirection);
 
             float spawnPause = Random.Range((1f - spawnPeriodDeviation) * spawnPeriod, (1f + spawnPeriodDeviation) * spawnPeriod);            
             if (Time.timeSinceLevelLoad + spawnPause > waveEndTime)
@@ -306,12 +450,18 @@ public class SpawnManager : MonoBehaviour
         yield return new WaitForSeconds(endPause);
     }
     //Period Deviation = 0
-    protected IEnumerator EnemyWave(float waveEndTime, float startPause, float endPause, float spawnPeriod, WaveDirection direction)
+    protected IEnumerator EnemyWave(float waveTotalDuration, float startPause, float endPause, float spawnPeriod, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Enemy Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Enemy Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+
         if (spawnPeriod < 0)
         {
             Debug.LogAssertion("Enemy Wave recieved negative spawn period.");
@@ -321,10 +471,26 @@ public class SpawnManager : MonoBehaviour
             Debug.LogWarning("You can use a shortened version of Enemy Wave call without EndPause.");
         }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Enemy Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+            startPause = 0f;
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
+        if (waveTotalDuration - startPause <= endPause)
+        {
+            Debug.LogAssertion("Enemy Wave recieved End Pause incompatible with Wave Duration and will skip it.");
+            endPause = 0f;
+        }
+        waveEndTime -= endPause;
+
         while (Time.timeSinceLevelLoad <= waveEndTime)
         {
-            _enemyManager.CreateEnemy(direction);
+            _enemyManager.CreateEnemy(waveDirection);
 
             if (Time.timeSinceLevelLoad + spawnPeriod > waveEndTime)
             {
@@ -338,21 +504,36 @@ public class SpawnManager : MonoBehaviour
         yield return new WaitForSeconds(endPause);
     }
     //Period Deviation = 0; End Pause = 0
-    protected IEnumerator EnemyWave(float waveEndTime, float startPause, float spawnPeriod, WaveDirection direction)
+    protected IEnumerator EnemyWave(float waveTotalDuration, float startPause, float spawnPeriod, direction waveDirection)
     {
-        if (waveEndTime <= Time.timeSinceLevelLoad)
+        float waveEndTime = Time.timeSinceLevelLoad;
+        if (waveTotalDuration <= 0)
         {
-            Debug.LogAssertion("Enemy Wave recieved invalid wave end time and will not start.");
+            Debug.LogAssertion("Enemy Wave recieved invalid Duration and will not start.");
         }
+        else
+        {
+            waveEndTime += waveTotalDuration;
+        }
+
         if (spawnPeriod < 0)
         {
             Debug.LogAssertion("Enemy Wave recieved negative spawn period.");
-        }        
+        }
 
-        yield return new WaitForSeconds(startPause);
+        if (waveTotalDuration <= startPause)
+        {
+            Debug.LogAssertion("Enemy Wave recieved Start Pause incompatible with Wave Duration and will skip it.");
+            startPause = 0f;
+        }
+        else
+        {
+            yield return new WaitForSeconds(startPause);
+        }
+
         while (Time.timeSinceLevelLoad <= waveEndTime)
         {
-            _enemyManager.CreateEnemy(direction);
+            _enemyManager.CreateEnemy(waveDirection);
 
             if (Time.timeSinceLevelLoad + spawnPeriod > waveEndTime)
             {
@@ -365,29 +546,59 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    protected IEnumerator PU_TripleFireWave(float waveEndTime)
+    protected IEnumerator PU_TripleFireWave(float waveDuration, direction waveDirection)
     {
+        float waveEndTime = Time.timeSinceLevelLoad;
+        if (waveDuration <= 0)
+        {
+            Debug.LogAssertion("PU Triple Fire Wave recieved invalid Duration and will not start.");
+        }
+        else
+        {
+            waveEndTime += waveDuration;
+        }
+
         while (Time.timeSinceLevelLoad < waveEndTime)
         {
-            _powerUpManager.Create_PU_TripleFire();
+            _powerUpManager.Create_PU_TripleFire(waveDirection);
             yield return new WaitForSeconds(Random.Range((1 - _PU_TripleFireSpawnPeriodDeviation) * _PU_TripleFireSpawnPeriod, (1 + _PU_TripleFireSpawnPeriodDeviation) * _PU_TripleFireSpawnPeriod));
         }
     }
 
-    protected IEnumerator PU_SpeedUpWave(float waveEndTime)
+    protected IEnumerator PU_SpeedUpWave(float waveDuration, direction waveDirection)
     {
+        float waveEndTime = Time.timeSinceLevelLoad;
+        if (waveDuration <= 0)
+        {
+            Debug.LogAssertion("PU Speed Up Wave recieved invalid Duration and will not start.");
+        }
+        else
+        {
+            waveEndTime += waveDuration;
+        }
+
         while (Time.timeSinceLevelLoad < waveEndTime)
         {
-            _powerUpManager.Create_PU_SpeedUp();
+            _powerUpManager.Create_PU_SpeedUp(waveDirection);
             yield return new WaitForSeconds(Random.Range((1 - _PU_SpeedUpSpawnPeriodDeviation) * _PU_SpeedUpSpawnPeriod, (1 + _PU_SpeedUpSpawnPeriodDeviation) * _PU_SpeedUpSpawnPeriod));
         }
     }
 
-    protected IEnumerator PU_ShieldWave(float waveEndTime)
+    protected IEnumerator PU_ShieldWave(float waveDuration, direction waveDirection)
     {
+        float waveEndTime = Time.timeSinceLevelLoad;
+        if (waveDuration <= 0)
+        {
+            Debug.LogAssertion("PU Triple Fire Wave recieved invalid Duration and will not start.");
+        }
+        else
+        {
+            waveEndTime += waveDuration;
+        }
+
         while (Time.timeSinceLevelLoad < waveEndTime)
         {
-            _powerUpManager.Create_PU_Shield();
+            _powerUpManager.Create_PU_Shield(waveDirection);
             yield return new WaitForSeconds(Random.Range((1 - _PU_ShieldSpawnPeriodDeviation) * _PU_ShieldSpawnPeriod, (1 + _PU_ShieldSpawnPeriodDeviation) * _PU_ShieldSpawnPeriod));
         }
     }

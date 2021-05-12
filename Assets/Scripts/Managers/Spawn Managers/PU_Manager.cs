@@ -27,21 +27,72 @@ public class PU_Manager : MonoBehaviour
         }
     }
 
-    public void Create_PU_TripleFire()
+    public void Create_PU_TripleFire(direction waveDirection)
     {
-        GameObject new_PU = Instantiate(_PU_TripleFire, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
-        new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+        switch (waveDirection)
+        {
+            case direction.down:
+               GameObject new_PU = Instantiate(_PU_TripleFire, new Vector3(Random.Range(-9.15f, 9.15f), 9f, 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.up:
+                new_PU = Instantiate(_PU_TripleFire, new Vector3(Random.Range(-9.15f, 9.15f), -6f, 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.right:
+                new_PU = Instantiate(_PU_TripleFire, new Vector3(-12f, Random.Range(-3.85f, 5.90f), 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.left:
+                new_PU = Instantiate(_PU_TripleFire, new Vector3(12f, Random.Range(-3.85f, 5.90f), 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+        }        
     }
 
-    public void Create_PU_SpeedUp()
+    public void Create_PU_SpeedUp(direction waveDirection)
     {
-        GameObject new_PU = Instantiate(_PU_SpeedUp, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
-        new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+        switch (waveDirection)
+        {
+            case direction.down:
+                GameObject new_PU = Instantiate(_PU_SpeedUp, new Vector3(Random.Range(-9.15f, 9.15f), 9f, 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.up:
+                new_PU = Instantiate(_PU_SpeedUp, new Vector3(Random.Range(-9.15f, 9.15f), -6f, 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.right:
+                new_PU = Instantiate(_PU_SpeedUp, new Vector3(-12f, Random.Range(-3.85f, 5.90f), 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.left:
+                new_PU = Instantiate(_PU_SpeedUp, new Vector3(12f, Random.Range(-3.85f, 5.90f), 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+        }
     }
 
-    public void Create_PU_Shield()
+    public void Create_PU_Shield(direction waveDirection)
     {
-        GameObject new_PU = Instantiate(_PU_Shield, new Vector3(Random.Range(-9.15f, 9.15f), 10f, 0), Quaternion.identity, this.transform);
-        new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+        switch (waveDirection)
+        {
+            case direction.down:
+                GameObject new_PU = Instantiate(_PU_Shield, new Vector3(Random.Range(-9.15f, 9.15f), 9f, 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.up:
+                new_PU = Instantiate(_PU_Shield, new Vector3(Random.Range(-9.15f, 9.15f), -6f, 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.right:
+                new_PU = Instantiate(_PU_Shield, new Vector3(-12f, Random.Range(-3.85f, 5.90f), 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+            case direction.left:
+                new_PU = Instantiate(_PU_Shield, new Vector3(12f, Random.Range(-3.85f, 5.90f), 0), Quaternion.identity, this.transform);
+                new_PU.GetComponent<MovingObject>().SetSpeed(3f);
+                break;
+        }
     }
 }
