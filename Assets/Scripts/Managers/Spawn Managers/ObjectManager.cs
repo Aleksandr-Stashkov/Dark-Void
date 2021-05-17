@@ -6,6 +6,8 @@ public class ObjectManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject _asteroid;
+    private List<GameObject> _reservedAsteroids = new List<GameObject>();
+    private bool _isReserveActive = true;
     //Asteroid parameters    
     private float _asteroidScaleMin = 0.3f;
     private float _asteroidScaleMax = 0.65f;
@@ -21,26 +23,71 @@ public class ObjectManager : MonoBehaviour
     public void CreateAsteroidTrigger(direction waveDirection)
     {
         float scale = Random.Range(_asteroidScaleMin, _asteroidScaleMax);
+        GameObject newAsteroid;
 
         switch (waveDirection)
         {
             case direction.down:
-                GameObject newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                    newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 newAsteroid.GetComponent<Asteroid>().SetAsWaveTrigger();
                 break;
             case direction.up:
-                newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                    newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 newAsteroid.GetComponent<Asteroid>().SetAsWaveTrigger();
                 break;
             case direction.right:
-                newAsteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                    newAsteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 newAsteroid.GetComponent<Asteroid>().SetAsWaveTrigger();
                 break;
             case direction.left:
-                newAsteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                    newAsteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 newAsteroid.GetComponent<Asteroid>().SetAsWaveTrigger();
                 break;
@@ -50,25 +97,106 @@ public class ObjectManager : MonoBehaviour
     public void CreateAsteroid(direction waveDirection)
     {
         float scale = Random.Range(_asteroidScaleMin, _asteroidScaleMax);
+        GameObject newAsteroid;
 
         switch (waveDirection)
         {
-            case direction.down:
-                GameObject newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+            case direction.down:                
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                   newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
             case direction.up:
-                newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                    newAsteroid = Instantiate(_asteroid, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
             case direction.right:
-                newAsteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                    newAsteroid = Instantiate(_asteroid, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
             case direction.left:
-                newAsteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedAsteroids.Count > 0)
+                {
+                    newAsteroid = _reservedAsteroids[0];
+                    _reservedAsteroids.RemoveAt(0);
+                    newAsteroid.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
+                    newAsteroid.transform.rotation = Quaternion.identity;
+                    newAsteroid.GetComponent<Asteroid>().Activate();
+                }
+                else
+                {
+                    newAsteroid = Instantiate(_asteroid, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 newAsteroid.transform.localScale = new Vector3(scale, scale, scale);
                 break;
         }
+    }
+
+    public void AddToReserve(GameObject asteroid)
+    {
+        if (_isReserveActive)
+        {
+            _reservedAsteroids.Add(asteroid);
+        }
+        else
+        {
+            asteroid.GetComponent<Asteroid>().Destroy();
+        }
+    }
+
+    public void TrimReserve()
+    {
+        _reservedAsteroids.TrimExcess();
+    }
+
+    public void StartReserve()
+    {
+        _isReserveActive = true;
+    }
+
+    public void StopReserve()
+    {
+        _isReserveActive = false;
+    }
+
+    public void ClearReserve()
+    {
+        foreach (GameObject reservedAsteroid in _reservedAsteroids)
+        {
+            reservedAsteroid.GetComponent<Asteroid>().Destroy();
+        }
+        _reservedAsteroids.Clear();
     }
 }

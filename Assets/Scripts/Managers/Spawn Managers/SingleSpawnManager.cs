@@ -11,12 +11,12 @@ public class SingleSpawnManager : SpawnManager
         FindPlayer();
 
         _playerEntranceDuration = 5f;
-        //_waveStartPause += _playerEntranceDuration;
         _player.SetEntranceDuration(_playerEntranceDuration);        
 
         if (_player.IsAlive())
         {
-            StartCoroutine(AsteroidTriggerWave(_waveDuration, _waveStartPause + _playerEntranceDuration, _waveStartPause, _enemySpawnPeriod, direction.down));
+            _objectManager.StartReserve();
+            StartCoroutine(AsteroidTriggerWave(_asteroidWaveDuration, _waveStartPause + _playerEntranceDuration, _waveStartPause, _enemySpawnPeriod, direction.down));
         }
     }
 

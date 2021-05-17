@@ -13,12 +13,13 @@ public class SpawnManager : MonoBehaviour
     protected Transform _laserContainer;
     private PU_Manager _powerUpManager;
     private EnemyManager _enemyManager;
-    private ObjectManager _objectManager;    
+    protected ObjectManager _objectManager;    
     //Timeline
     protected float _playerEntranceDuration; //time for player to reach its starting position
-    protected float _waveStartPause = 4f;
+    protected float _waveStartPause = 5f;
     protected float _waveEndPause = 3f;
     protected float _waveDuration = 30f;
+    protected float _asteroidWaveDuration = 360f;
     private bool _isAsteroidDestroyed = false;
     //Spawn periods
     protected float _enemySpawnPeriod = 2f;
@@ -613,6 +614,8 @@ public class SpawnManager : MonoBehaviour
         if (!_isAsteroidDestroyed)
         {
             _isAsteroidDestroyed = true;
+            _objectManager.StopReserve();
+            _objectManager.ClearReserve();
             StartCoroutine(MainTimeline());
         }
     }

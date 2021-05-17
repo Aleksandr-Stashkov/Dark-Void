@@ -61,7 +61,7 @@ public class MovingObject : MonoBehaviour
             }
             else
             {
-                Destroy(transform.gameObject);
+                Dispose();
             }
         }
 
@@ -69,6 +69,22 @@ public class MovingObject : MonoBehaviour
         {
             transform.Rotate(0, 0, Time.deltaTime * _rotationalSpeed * 6);
         }
+    }
+
+    protected virtual void Dispose()
+    {
+        Destroy(gameObject);
+    }
+
+    public void Destroy()
+    {
+        Destroy(gameObject);
+    }
+
+    public virtual void Activate()
+    {
+        gameObject.SetActive(true);
+        Start();
     }
 
     public void SetForwardDirection(Vector3 forawdDirection)

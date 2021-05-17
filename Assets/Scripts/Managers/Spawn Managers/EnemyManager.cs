@@ -6,6 +6,7 @@ public class EnemyManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject _enemy;
+    private List<GameObject> _reservedEnemies = new List<GameObject>();
 
     void Start()
     {
@@ -17,22 +18,68 @@ public class EnemyManager : MonoBehaviour
     
     public void CreateEnemy(direction waveDirection, bool isTurningBack)
     {
+        GameObject newEnemy;
+
         switch (waveDirection)
         {
             case direction.down:
-                GameObject newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0) 
+                {
+                    newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+                }
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
             case direction.up:
-                newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0)
+                {
+                    newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    newEnemy = Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                }
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
             case direction.right:
-                newEnemy = Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0)
+                {
+                    newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    newEnemy = Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
             case direction.left:
-                newEnemy = Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0)
+                {
+                    newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    newEnemy = Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 newEnemy.GetComponent<Enemy>().SetTurningBack(isTurningBack);
                 break;
         }
@@ -43,18 +90,99 @@ public class EnemyManager : MonoBehaviour
         switch (waveDirection)
         {
             case direction.down:
-                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0)
+                {
+                    GameObject newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), 7.8f), Quaternion.identity, this.transform);
+                }
                 break;
             case direction.up:
-                Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0)
+                {
+                    GameObject newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    Instantiate(_enemy, new Vector3(Random.Range(-8.25f, 8.25f), -6f), Quaternion.identity, this.transform);
+                }
                 break;
             case direction.right:
-                Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0)
+                {
+                    GameObject newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    Instantiate(_enemy, new Vector3(-11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 break;
             case direction.left:
-                Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                if (_reservedEnemies.Count > 0)
+                {
+                    GameObject newEnemy = _reservedEnemies[0];
+                    _reservedEnemies.RemoveAt(0);
+                    newEnemy.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
+                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.GetComponent<Enemy>().Activate();
+                }
+                else
+                {
+                    Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
+                }
                 break;
 
         }
+    }
+
+    public void AddToReserve(GameObject enemy)
+    {
+        /*if (_isReserveActive)
+        {*/
+            _reservedEnemies.Add(enemy);
+        /*}
+        else
+        {
+            asteroid.GetComponent<Asteroid>().Destroy();
+        }*/
+    }
+
+    public void TrimReserve()
+    {
+        _reservedEnemies.TrimExcess();
+    }
+/*
+    public void StartReserve()
+    {
+        _isReserveActive = true;
+    }
+
+    public void StopReserve()
+    {
+        _isReserveActive = false;
+    }
+*/
+
+    public void ClearReserve()
+    {
+        foreach (GameObject reservedEnemy in _reservedEnemies)
+        {
+            reservedEnemy.GetComponent<Enemy>().Destroy();
+        }
+        _reservedEnemies.Clear();
     }
 }

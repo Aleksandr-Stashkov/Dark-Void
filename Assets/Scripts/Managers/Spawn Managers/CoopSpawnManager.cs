@@ -13,13 +13,12 @@ public class CoopSpawnManager : SpawnManager
         FindPlayers();
 
         _playerEntranceDuration = 7f;
-        //_waveStartPause += _playerEntranceDuration;
         _player.SetEntranceDuration(_playerEntranceDuration);
         _player2.SetEntranceDuration(_playerEntranceDuration);
 
         if (_player.IsAlive() && _player2.IsAlive())
         {
-            StartCoroutine(AsteroidTriggerWave(_waveDuration, _waveStartPause + _playerEntranceDuration, _waveStartPause, _enemySpawnPeriod, direction.down));
+            StartCoroutine(AsteroidTriggerWave(_asteroidWaveDuration, _waveStartPause + _playerEntranceDuration, _waveStartPause, _enemySpawnPeriod, direction.down));
         }
     }
 

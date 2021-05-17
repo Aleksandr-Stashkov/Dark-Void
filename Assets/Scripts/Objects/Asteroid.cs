@@ -8,6 +8,7 @@ public class Asteroid : MovingObject
     [SerializeField]
     private GameObject _explosion;
     private SpawnManager _spawnManager;
+    private ObjectManager _objectManager;
     private AudioSource _audio_Destruction;
 
     private int _collisionDamege = 1;
@@ -15,6 +16,7 @@ public class Asteroid : MovingObject
     private float _rotationalSpeedMax = 11f;
     private bool _isWaveTrigger = false;
     private float _explosionAnimationLength = 0;
+    private bool _isChildOfManager = true;
 
     protected override void Start()
     {
@@ -46,8 +48,14 @@ public class Asteroid : MovingObject
             }
         }
 
+        _objectManager = transform.parent.GetComponent<ObjectManager>();
         _spawnManager = transform.parent.parent.GetComponent<SpawnManager>();
-        _audio_Destruction = transform.parent.GetComponent<AudioSource>();        
+        _audio_Destruction = transform.parent.GetComponent<AudioSource>();
+        if (_objectManager == null)
+        {
+            Debug.LogError("Asteroid could not locate Object Manager as a parent.");
+            _isChildOfManager = false;
+        }
         if (_spawnManager == null)
         {
             Debug.LogError("Asteroid could not locate Spawn Manager.");
@@ -64,7 +72,7 @@ public class Asteroid : MovingObject
         newExplosion.transform.localScale = transform.localScale;
         newExplosion.GetComponent<MovingObject>().FullSetup(_speed, _rotationalSpeed, _forwardDirection, false);
 
-        transform.gameObject.SetActive(false);
+        gameObject.SetActive(false);
         _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
 
         if (other.CompareTag("Fire") || other.CompareTag("Fire_enemy"))
@@ -81,9 +89,22 @@ public class Asteroid : MovingObject
         }
 
         Destroy(newExplosion.gameObject, _explosionAnimationLength);
-        Destroy(transform.gameObject);
+        Dispose();
     }
-    
+
+    protected override void Dispose()
+    {
+        if (_isChildOfManager)
+        {
+            gameObject.SetActive(false);
+            _objectManager.AddToReserve(gameObject);
+        }
+        else
+        {
+            base.Dispose();
+        }
+    }    
+
     public void SetAsWaveTrigger()
     {
         _isWaveTrigger = true;

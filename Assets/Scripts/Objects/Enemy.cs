@@ -6,7 +6,8 @@ public class Enemy : MovingObject
 {
     [SerializeField]
     private GameObject _laser;
-    private Transform _laserContainer;    
+    private Transform _laserContainer;
+    private EnemyManager _enemyManager;
     private Collider2D _collider;
     private AudioSource _audio_Destruction;
 
@@ -18,7 +19,8 @@ public class Enemy : MovingObject
     private float _averageFirePause = 3f;
     private float _firePause = 0f;
     private bool _isFireEnabled = false;
-    private bool _isAlive = true;    
+    private bool _isAlive = true;
+    private bool _isChildOfManager = true;
 
     protected override void Start()
     {
@@ -35,6 +37,9 @@ public class Enemy : MovingObject
 
         base.Start();
 
+        _collider.enabled = true;
+        _isAlive = true;
+
         _firePause = Random.Range(0, _averageFirePause/2);
         StartCoroutine(FireCooldown());
     }
@@ -47,8 +52,14 @@ public class Enemy : MovingObject
             Debug.LogError("Enemy could not locate its animator.");
         }
         _anim_ID_IsEnemyDead = Animator.StringToHash("isEnemyDead");
-        _anim_Length = _anim_Destruction.runtimeAnimatorController.animationClips[0].length;
+        _anim_Length = _anim_Destruction.runtimeAnimatorController.animationClips[0].length/1.75f;
 
+        _enemyManager = transform.parent.GetComponent<EnemyManager>();
+        if (_enemyManager == null)
+        {
+            Debug.LogError("Enemy could not locate its Manager as a parent.");
+            _isChildOfManager = false;
+        }
         _laserContainer = transform.parent.parent.GetComponent<SpawnManager>().LaserContainer();        
         _collider = GetComponent<Collider2D>();
         _audio_Destruction = transform.parent.GetComponent<AudioSource>();
@@ -98,6 +109,19 @@ public class Enemy : MovingObject
         _isFireEnabled = true;
     }
 
+    protected override void Dispose()
+    {
+        if (_isChildOfManager)
+        {
+            gameObject.SetActive(false);
+            _enemyManager.AddToReserve(gameObject);
+        }
+        else
+        {
+            base.Dispose();
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Fire"))
@@ -109,7 +133,7 @@ public class Enemy : MovingObject
             _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);           
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
             Destroy(other.gameObject);
-            Destroy(transform.gameObject, _anim_Length);            
+            StartCoroutine(Destruction());            
         }
         if (other.CompareTag("Player"))
         {
@@ -118,7 +142,7 @@ public class Enemy : MovingObject
             other.GetComponent<Player>().EnemyCollision(_collisionDamage);
             _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
-            Destroy(transform.gameObject, _anim_Length);
+            StartCoroutine(Destruction());
         }
         if (other.CompareTag("Asteroid"))
         {
@@ -126,7 +150,18 @@ public class Enemy : MovingObject
             _isAlive = false;
             _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);            
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
-            Destroy(transform.gameObject, 2.37f);
+            StartCoroutine(Destruction());
         }       
-    }    
+    }
+
+    private IEnumerator Destruction()
+    {
+        yield return new WaitForSeconds(_anim_Length);
+        Dispose();
+    }
+
+    public override void Activate()
+    {
+        base.Activate();
+    }
 }

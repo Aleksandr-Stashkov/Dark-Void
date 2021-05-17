@@ -413,30 +413,31 @@ public class Player : MonoBehaviour
             _isSpedUp = false;
         }
     }
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        switch (other.tag)
+        if (other.CompareTag("PU_TripleFire"))
         {
-            case "PU_Triple":
-                StartCoroutine(ActivateTripleFire());
-                _audio_Source.PlayOneShot(_audio_PowerUp);
-                Destroy(other.gameObject);
-                break;
-            case "PU_player_speed":        
-                StartCoroutine(ActivateSpeedUp());
-                _audio_Source.PlayOneShot(_audio_PowerUp);
-                Destroy(other.gameObject);
-                break;
-            case "PU_shield":
-                _shield.gameObject.SetActive(true);
-                _audio_Source.PlayOneShot(_audio_PowerUp);
-                Destroy(other.gameObject);
-                break;
-            case "Fire_enemy":
-                Destroy(other.gameObject);
-                ObjectCollision(1);
-                break;
+            StartCoroutine(ActivateTripleFire());
+            _audio_Source.PlayOneShot(_audio_PowerUp);
+            other.GetComponent<PowerUp>().DisposeOf_PU();
+        }
+        if (other.CompareTag("PU_SpeedUp"))
+        {
+            StartCoroutine(ActivateSpeedUp());
+            _audio_Source.PlayOneShot(_audio_PowerUp);
+            other.GetComponent<PowerUp>().DisposeOf_PU();
+        }
+        if (other.CompareTag("PU_Shield"))
+        {
+            _shield.gameObject.SetActive(true);
+            _audio_Source.PlayOneShot(_audio_PowerUp);
+            other.GetComponent<PowerUp>().DisposeOf_PU();
+        }
+        if (other.CompareTag("Fire_enemy"))
+        {
+            Destroy(other.gameObject);
+            ObjectCollision(1);
         }
     }
     
