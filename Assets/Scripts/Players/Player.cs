@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private Transform _laserContainer;
+    private LaserManager _laserManager;
     protected UI_Manager _UI_Manager;
     //Associated objects
     private GameObject _shield, _thruster, _damage1, _damage2, _damage3;    
     private AudioSource _audio_Source;
     [SerializeField]
-    private AudioClip _audio_Fire, _audio_PowerUp, _audio_Damage;    
-    [SerializeField]
-    private GameObject _laser;
-    [SerializeField]
-    private GameObject _tripleLaser;
+    private AudioClip _audio_Fire, _audio_PowerUp/*, _audio_Damage*/;
     //Movement
     protected bool _isUserControlled = false;
     protected bool _isRotationOff = true;
@@ -117,10 +113,10 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Player could not locate powerup audio.");
         }
-        if (_audio_Damage == null)
+        /*if (_audio_Damage == null)
         {
             Debug.LogError("Player could not locate damage audio.");
-        }
+        }*/
         if (_anim_ID_TurnLeft == 0)
         {
             Debug.LogError("Player's animator could not find Turn_Left parameter.");
@@ -128,15 +124,7 @@ public class Player : MonoBehaviour
         if (_anim_ID_TurnRight == 0)
         {
             Debug.LogError("Player's animator could not find Turn_Right parameter.");
-        }
-        if (_laser == null)
-        {
-            Debug.LogError("Player could not locate PREFAB for Laser.");
-        }
-        if (_tripleLaser == null)
-        {
-            Debug.LogError("Player could not locate PREFAB for Triple Laser.");
-        }
+        }        
         if (_shield == null)
         {
             Debug.LogError("Player could not locate Shield.");
@@ -356,21 +344,14 @@ public class Player : MonoBehaviour
     {
         if (_isTripleFire == true)
         {
-            GameObject newTripleFire = Instantiate(_tripleLaser, transform.position, transform.rotation, _laserContainer);
-            Laser[] lasers = newTripleFire.GetComponentsInChildren<Laser>();
-            foreach (Laser laser in lasers)
-            {
-                laser.SetPlayer(this);
-            }
+            _laserManager.CreateTripleLaser(this);
             _audio_Source.PlayOneShot(_audio_Fire);
             _audio_Source.PlayOneShot(_audio_Fire);
             _audio_Source.PlayOneShot(_audio_Fire);
         }
         else
         {
-            GameObject newLaser = Instantiate(_laser, transform.position + transform.up * 0.8f, transform.rotation, _laserContainer);
-            newLaser.GetComponent<Laser>().SetPlayer(this);
-            _audio_Source.PlayOneShot(_audio_Fire);
+            _laserManager.CreateLaser(this);
         }
 
         StartCoroutine(FireCooldown());
@@ -436,7 +417,7 @@ public class Player : MonoBehaviour
         }
         if (other.CompareTag("Fire_enemy"))
         {
-            Destroy(other.gameObject);
+            other.GetComponent<Laser>().Dispose();
             ObjectCollision(1);
         }
     }
@@ -473,7 +454,7 @@ public class Player : MonoBehaviour
     
     public virtual void TakeDamage(int damage)
     {
-        _audio_Source.PlayOneShot(_audio_Damage);
+        //_audio_Source.PlayOneShot(_audio_Damage);
 
         if (damage > _lives)
         {
@@ -588,15 +569,15 @@ public class Player : MonoBehaviour
 
     public virtual bool IsPlayer1() { return true; }
 
-    public void SetLaserContainer(Transform laserContainer) 
+    public void SetLaserContainer(LaserManager laserManager) 
     {
-        if (laserContainer == null)
+        if (laserManager == null)
         {
-            Debug.LogAssertion("Player was handled an empty Laser Container.");
+            Debug.LogAssertion("Player was handled an empty Laser Manager.");
         }
         else
         {
-            _laserContainer = laserContainer;
+            _laserManager = laserManager;
         }
     }
 }

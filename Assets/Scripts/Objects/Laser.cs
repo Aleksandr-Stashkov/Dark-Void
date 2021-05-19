@@ -6,12 +6,21 @@ public class Laser : MonoBehaviour
 {
     private float _velocity = 12f;    
     private Player _playerSource;
+    private LaserManager _laserManager;
+    private bool _isChildOfManager = true;    
 
     private void Start()
     {
+        _laserManager = transform.parent.GetComponent<LaserManager>();
+        if (_laserManager == null)
+        {
+            Debug.LogError("Laser could not locate its Manager as a parent.");
+            _isChildOfManager = false;
+        }
+
         if (_velocity <= 0)
         {
-            Debug.LogAssertion("Laser speed is equal to or less than 0.");
+            Debug.LogAssertion("Laser speed is equal to or less than 0.");           
         }
     }
         
@@ -19,18 +28,25 @@ public class Laser : MonoBehaviour
     {
         transform.Translate(transform.up * _velocity * Time.deltaTime, Space.World);
 
-        if (transform.position.y > 8f || transform.position.y < -8f || transform.position.x > 10f || transform.position.x < -10f)
+        if (transform.position.y > 8f || transform.position.y < -8f || transform.position.x > 12f || transform.position.x < -12f)
         {
-            if (transform.parent.CompareTag("Fire"))
-            {
-                Destroy(transform.parent.gameObject);
-            }
-            else
-            {
-                Destroy(transform.gameObject);
-            }
+            Dispose();
         }
     }
+
+    public void Dispose()
+    {
+        if (_isChildOfManager)
+        {
+            gameObject.SetActive(false);
+            _laserManager.AddLaserToReserve(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }       
+
 
     public void SetPlayer(Player player)
     {
@@ -47,5 +63,11 @@ public class Laser : MonoBehaviour
     public void AddScore(int score)
     {
         _playerSource.AddScore(score);
+        Dispose();
+    }
+
+    public void DisableReserve()
+    {
+        _isChildOfManager = false;
     }
 }

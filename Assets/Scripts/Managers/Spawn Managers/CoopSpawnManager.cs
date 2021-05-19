@@ -58,7 +58,7 @@ public class CoopSpawnManager : SpawnManager
         }
         else
         {
-            _player.SetLaserContainer(_laserContainer);
+            _player.SetLaserContainer(_laserManager);
         }
         if (_player2 == null)
         {
@@ -66,7 +66,7 @@ public class CoopSpawnManager : SpawnManager
         }
         else
         {
-            _player2.SetLaserContainer(_laserContainer);
+            _player2.SetLaserContainer(_laserManager);
         }
     }
 

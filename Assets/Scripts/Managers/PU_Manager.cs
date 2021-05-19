@@ -266,21 +266,21 @@ public class PU_Manager : MonoBehaviour
 
     public void ClearReserve()
     {
-        foreach (GameObject reservedShield in _reservedShield)
+        foreach (GameObject PU_Shield in _reservedShield)
         {
-            reservedShield.GetComponent<PowerUp>().Destroy();
+            Destroy(PU_Shield);
         }
         _reservedShield.Clear();
 
-        foreach (GameObject reservedSpeedUp in _reservedSpeedUp)
+        foreach (GameObject PU_SpeedUp in _reservedSpeedUp)
         {
-            reservedSpeedUp.GetComponent<PowerUp>().Destroy();
+            Destroy(PU_SpeedUp);
         }
         _reservedSpeedUp.Clear();
 
-        foreach (GameObject reservedTripleFire in _reservedTripleFire)
+        foreach (GameObject PU_TripleFire in _reservedTripleFire)
         {
-            reservedTripleFire.GetComponent<PowerUp>().Destroy();
+            Destroy(PU_TripleFire);
         }
         _reservedTripleFire.Clear();
     }

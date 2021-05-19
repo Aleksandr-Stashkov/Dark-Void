@@ -145,43 +145,24 @@ public class EnemyManager : MonoBehaviour
                     Instantiate(_enemy, new Vector3(11.5f, Random.Range(-3.9f, 5.75f)), Quaternion.identity, this.transform);
                 }
                 break;
-
         }
     }
 
     public void AddToReserve(GameObject enemy)
     {
-        /*if (_isReserveActive)
-        {*/
-            _reservedEnemies.Add(enemy);
-        /*}
-        else
-        {
-            asteroid.GetComponent<Asteroid>().Destroy();
-        }*/
+        _reservedEnemies.Add(enemy);        
     }
 
     public void TrimReserve()
     {
         _reservedEnemies.TrimExcess();
     }
-/*
-    public void StartReserve()
-    {
-        _isReserveActive = true;
-    }
-
-    public void StopReserve()
-    {
-        _isReserveActive = false;
-    }
-*/
 
     public void ClearReserve()
     {
-        foreach (GameObject reservedEnemy in _reservedEnemies)
+        foreach (GameObject enemy in _reservedEnemies)
         {
-            reservedEnemy.GetComponent<Enemy>().Destroy();
+            Destroy(enemy);
         }
         _reservedEnemies.Clear();
     }

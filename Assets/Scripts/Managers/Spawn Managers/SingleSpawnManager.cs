@@ -29,7 +29,7 @@ public class SingleSpawnManager : SpawnManager
         }
         else
         {
-            _player.SetLaserContainer(_laserContainer);
+            _player.SetLaserContainer(_laserManager);
         }
     }
 

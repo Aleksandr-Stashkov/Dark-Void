@@ -75,12 +75,7 @@ public class MovingObject : MonoBehaviour
     {
         Destroy(gameObject);
     }
-
-    public void Destroy()
-    {
-        Destroy(gameObject);
-    }
-
+        
     public virtual void Activate()
     {
         gameObject.SetActive(true);

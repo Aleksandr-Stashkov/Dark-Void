@@ -172,7 +172,7 @@ public class ObjectManager : MonoBehaviour
         }
         else
         {
-            asteroid.GetComponent<Asteroid>().Destroy();
+            Destroy(asteroid);
         }
     }
 
@@ -195,7 +195,7 @@ public class ObjectManager : MonoBehaviour
     {
         foreach (GameObject reservedAsteroid in _reservedAsteroids)
         {
-            reservedAsteroid.GetComponent<Asteroid>().Destroy();
+            Destroy(reservedAsteroid);
         }
         _reservedAsteroids.Clear();
     }

@@ -10,7 +10,7 @@ public class SpawnManager : MonoBehaviour
     protected Player _player;
     protected AudioSource _audio_Background;
     //Containers' managers    
-    protected Transform _laserContainer;
+    protected LaserManager _laserManager;
     private PU_Manager _powerUpManager;
     private EnemyManager _enemyManager;
     protected ObjectManager _objectManager;    
@@ -45,7 +45,7 @@ public class SpawnManager : MonoBehaviour
             switch (child.name)
             {
                 case "LaserContainer":
-                    _laserContainer = child.transform;
+                    _laserManager = child.gameObject.GetComponent<LaserManager>();
                     break;
                 case "EnemyContainer":
                     _enemyManager = child.gameObject.GetComponent<EnemyManager>();
@@ -68,9 +68,9 @@ public class SpawnManager : MonoBehaviour
 
     private void CheckObjects()
     {
-        if (_laserContainer == null)
+        if (_laserManager == null)
         {
-            Debug.LogError("Spawn Manager could not locate Laser Container.");
+            Debug.LogError("Spawn Manager could not locate Laser Manager.");
         }
         if (_enemyManager == null)
         {
@@ -620,5 +620,5 @@ public class SpawnManager : MonoBehaviour
         }
     }
 
-    public Transform LaserContainer() { return _laserContainer; }
+    public LaserManager LaserContainer() { return _laserManager; }
 }

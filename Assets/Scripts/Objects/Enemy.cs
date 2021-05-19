@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class Enemy : MovingObject
 {
-    [SerializeField]
-    private GameObject _laser;
-    private Transform _laserContainer;
+    private LaserManager _laserManager;
     private EnemyManager _enemyManager;
     private Collider2D _collider;
     private AudioSource _audio_Destruction;
@@ -60,14 +58,10 @@ public class Enemy : MovingObject
             Debug.LogError("Enemy could not locate its Manager as a parent.");
             _isChildOfManager = false;
         }
-        _laserContainer = transform.parent.parent.GetComponent<SpawnManager>().LaserContainer();        
+        _laserManager = transform.parent.parent.GetComponent<SpawnManager>().LaserContainer();        
         _collider = GetComponent<Collider2D>();
         _audio_Destruction = transform.parent.GetComponent<AudioSource>();
 
-        if (_laser == null)
-        {
-            Debug.LogError("Enemy could not locate its laser.");
-        }        
         if (_collider == null)
         {
             Debug.LogError("Enemy could not locate its collider.");
@@ -88,16 +82,8 @@ public class Enemy : MovingObject
         
         if (_isFireEnabled && _isAlive)
         {
-            if (Random.value < 0.5f)
-            {
-                Instantiate(_laser, transform.position - transform.up * 0.706f + transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), _laserContainer);
-            }
-            else
-            {
-                Instantiate(_laser, transform.position - transform.up * 0.706f - transform.right * 0.09f, transform.rotation * Quaternion.FromToRotation(transform.up, -transform.up), _laserContainer);
-            }
-
-            _firePause = Random.Range(0.8f * _averageFirePause, 1.2f * _averageFirePause);
+            _laserManager.CreateEnemyLaser(transform);
+            
             StartCoroutine(FireCooldown());
         }
     }
@@ -105,6 +91,7 @@ public class Enemy : MovingObject
     IEnumerator FireCooldown()
     {
         _isFireEnabled = false;
+        _firePause = Random.Range(0.8f * _averageFirePause, 1.2f * _averageFirePause);
         yield return new WaitForSeconds(_firePause);
         _isFireEnabled = true;
     }
@@ -132,7 +119,6 @@ public class Enemy : MovingObject
             _isAlive = false;
             _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);           
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
-            Destroy(other.gameObject);
             StartCoroutine(Destruction());            
         }
         if (other.CompareTag("Player"))

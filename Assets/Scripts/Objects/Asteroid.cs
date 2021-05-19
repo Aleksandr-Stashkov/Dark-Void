@@ -77,7 +77,7 @@ public class Asteroid : MovingObject
 
         if (other.CompareTag("Fire") || other.CompareTag("Fire_enemy"))
         {
-            Destroy(other.gameObject);            
+            other.GetComponent<Laser>().Dispose();            
             if (_isWaveTrigger == true)
             {
                 _spawnManager.TriggerWave();
