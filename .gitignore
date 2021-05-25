@@ -65,8 +65,16 @@ Packages/
 ProjectSettings/
 UserSettings/
 Assets/Audio/
+Assets/Audio.meta
 Assets/Materials/
+Assets/Materials.meta
 Assets/Prefabs/
+Assets/Prefabs.meta
+Assets/Resources/
+Assets/Resources.meta
 Assets/Scenes/
+Assets/Scenes.meta
 Assets/Sprites/
+Assets/Sprites.meta
 Assets/TextMesh Pro/
+Assets/TextMesh Pro.meta
