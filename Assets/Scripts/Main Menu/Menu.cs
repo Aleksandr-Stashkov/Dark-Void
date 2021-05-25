@@ -44,6 +44,9 @@ public class Menu : MonoBehaviour
                 case "Score Panel":
                     _pnl_Score = child.gameObject;
                     break;
+                default:
+                    Debug.LogWarning("There is an unrecognized child of Canvas.");
+                    break;
             }
         }
 
@@ -63,6 +66,9 @@ public class Menu : MonoBehaviour
                         break;
                     case "Coop Score Text":
                         _txt_CoopScore = child.GetComponent<Text>();
+                        break;
+                    default:
+                        Debug.LogWarning("There is an unrecognized child of Score Panel.");
                         break;
                 }
             }
