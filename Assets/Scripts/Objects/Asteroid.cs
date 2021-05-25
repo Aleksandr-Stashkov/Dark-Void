@@ -25,6 +25,7 @@ public class Asteroid : MovingObject
         _speed = 1.5f;
         _rotationalSpeed = Random.Range(_rotationalSpeedMin, _rotationalSpeedMax) * (Random.Range(0, 2) * 2 - 1);
         _isRotating = true;
+
         if (Mathf.Abs(_rotationalSpeed) < _rotationalSpeedMin || Mathf.Abs(_rotationalSpeed) > _rotationalSpeedMax)
         {
             Debug.LogAssertion("The asteroid's rotational speed is out of the set range.");
@@ -37,32 +38,57 @@ public class Asteroid : MovingObject
     {
         if (_explosion == null)
         {
-            Debug.LogError("Asteroid could not locate Explosion animation.");
+            Debug.LogError("Asteroid could not locate Explosion.");
         }
         else
         {
-            _explosionAnimationLength = _explosion.GetComponent<Animator>().runtimeAnimatorController.animationClips[0].length;
-            if (_explosionAnimationLength == 0)
+            Animator anim_Explosion = _explosion.GetComponent<Animator>();
+            if (anim_Explosion == null)
             {
-                Debug.LogAssertion("Asteroid could not determine the length of Explosion animation.");
+                Debug.LogError("Asteroid could not locate Animator component of Explosion.");
+            }
+            else
+            {
+                _explosionAnimationLength = anim_Explosion.runtimeAnimatorController.animationClips[0].length;
+                if (_explosionAnimationLength == 0)
+                {
+                    Debug.LogAssertion("Asteroid could not determine the length of Explosion animation.");
+                }
             }
         }
 
-        _objectManager = transform.parent.GetComponent<ObjectManager>();
-        _spawnManager = transform.parent.parent.GetComponent<SpawnManager>();
-        _audio_Destruction = transform.parent.GetComponent<AudioSource>();
-        if (_objectManager == null)
+        Transform parent = transform.parent;
+        if (parent == null)
         {
-            Debug.LogError("Asteroid could not locate Object Manager as a parent.");
+            Debug.LogError("Asteroid could not locate its parent.");
             _isChildOfManager = false;
         }
-        if (_spawnManager == null)
+        else
         {
-            Debug.LogError("Asteroid could not locate Spawn Manager.");
-        }
-        if (_audio_Destruction == null)
-        {
-            Debug.LogError("Asteroid could not locate audio in the Object Container.");
+            _objectManager = parent.GetComponent<ObjectManager>();            
+            _audio_Destruction = parent.GetComponent<AudioSource>();
+            if (_objectManager == null)
+            {
+                Debug.LogError("Asteroid could not locate Object Manager on the parent.");
+                _isChildOfManager = false;
+            }            
+            if (_audio_Destruction == null)
+            {
+                Debug.LogError("Asteroid could not locate Audio Source on the parent.");
+            }
+            parent = parent.parent;
+            if (parent == null)
+            {
+                Debug.LogError("Asteroid could not locate its parent.parent.");
+            }
+            else
+            {
+                _spawnManager = parent.GetComponent<SpawnManager>();
+                if (_spawnManager == null)
+                {
+                    Debug.LogError("Asteroid could not locate Spawn Manager on its parent.parent.");
+                }
+            }
         }
     }   
 
@@ -77,15 +103,32 @@ public class Asteroid : MovingObject
 
         if (other.CompareTag("Fire") || other.CompareTag("Fire_enemy"))
         {
-            other.GetComponent<Laser>().Dispose();            
+            Laser laser = other.GetComponent<Laser>();
+            if (laser == null)
+            {
+                Debug.LogError("Asteroid could not locate Laser component on Collider.");
+                Destroy(other);
+            }
+            else
+            {
+                other.GetComponent<Laser>().Dispose();
+            }
             if (_isWaveTrigger == true)
             {
                 _spawnManager.TriggerWave();
-            }           
+            }         
         }
         else if (other.CompareTag("Player"))
         {
-            other.GetComponent<Player>().ObjectCollision(_collisionDamege);            
+            Player player = other.GetComponent<Player>();
+            if (player == null)
+            {
+                Debug.LogError("Asteroid could not locate Player component on Collider.");
+            }
+            else
+            {
+                player.ObjectCollision(_collisionDamege);
+            }
         }
 
         Destroy(newExplosion.gameObject, _explosionAnimationLength);

@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 //Wave dircetion
 public enum direction { down, up, right, left };
 

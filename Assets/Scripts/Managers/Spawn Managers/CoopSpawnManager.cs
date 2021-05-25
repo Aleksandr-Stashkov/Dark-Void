@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CoopSpawnManager : SpawnManager
 {
-    private Player _player2;    
+    private Player _player2;
 
     protected override void Start()
     {
@@ -24,32 +24,54 @@ public class CoopSpawnManager : SpawnManager
 
     private void FindPlayers()
     {
-        GameObject[] players;
-        players = GameObject.FindGameObjectsWithTag("Player");
-        if(players.Length == 2)
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+        if (players.Length >= 2)
         {
-            _player = players[0].GetComponent<CoopPlayer>();
-            if (_player.IsPlayer1())
+            if (players.Length > 2)
             {
-                _player2 = players[1].GetComponent<CoopPlayer>();
-                if (_player2.IsPlayer1())
-                {
-                    Debug.LogWarning("Two players are set as Player 1.");
-                }
+                Debug.LogWarning("There are more than 2 players. Possible errors in their identification.");
+            }
+
+            _player = players[0].GetComponent<CoopPlayer>();
+            if (_player == null)
+            {
+                Debug.LogError("There is no Coop Player component on one of the players.");
             }
             else
             {
-                _player2 = _player;
-                _player = players[1].GetComponent<CoopPlayer>();
-                if (!_player.IsPlayer1())
+                if (_player.IsPlayer1())
                 {
-                    Debug.LogWarning("Neither of players is set as Player 1.");
+                    _player2 = players[1].GetComponent<CoopPlayer>();
+                    if (_player2 == null)
+                    {
+                        Debug.LogError("There is no Coop Player component on one of the players.");
+                    }
+                    else
+                    {
+                        if (_player2.IsPlayer1())
+                        {
+                            Debug.LogWarning("Two players are set as Player 1.");
+                        }
+                    }
+                }
+                else
+                {
+                    _player2 = _player;
+                    _player = players[1].GetComponent<CoopPlayer>();
+                    if (_player == null)
+                    {
+                        Debug.LogError("There is no Coop Player component on one of the players.");
+                    }
+                    else if (!_player.IsPlayer1())
+                    {
+                        Debug.LogWarning("Neither of players is set as Player 1.");
+                    }
                 }
             }
         }
         else
         {
-            Debug.LogWarning("The number of players is other than two.");
+            Debug.LogWarning("The number of players is less than 2.");
         }
 
         if (_player == null)

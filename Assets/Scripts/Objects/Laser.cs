@@ -11,11 +11,20 @@ public class Laser : MonoBehaviour
 
     private void Start()
     {
-        _laserManager = transform.parent.GetComponent<LaserManager>();
-        if (_laserManager == null)
+        Transform laserContainer = transform.parent;
+        if (laserContainer == null)
         {
-            Debug.LogError("Laser could not locate its Manager as a parent.");
+            Debug.LogError("Laser could not locate its parent.");
             _isChildOfManager = false;
+        }
+        else
+        {
+            _laserManager = laserContainer.GetComponent<LaserManager>();
+            if (_laserManager == null)
+            {
+                Debug.LogError("Laser could not locate its Manager on the parent.");
+                _isChildOfManager = false;
+            }
         }
 
         if (_velocity <= 0)
@@ -52,7 +61,7 @@ public class Laser : MonoBehaviour
     {
         if (player == null)
         {
-            Debug.LogError("Laser was handled an empty player.");
+            Debug.LogAssertion("Laser was handled an empty Player reference.");
         }
         else
         {

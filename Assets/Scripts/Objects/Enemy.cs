@@ -44,35 +44,67 @@ public class Enemy : MovingObject
 
     private void FindObjects()
     {
+        _collider = GetComponent<Collider2D>();
+        if (_collider == null)
+        {
+            Debug.LogError("Enemy could not locate its collider.");
+        }
         _anim_Destruction = GetComponent<Animator>();
         if (_anim_Destruction == null)
         {
             Debug.LogError("Enemy could not locate its animator.");
         }
-        _anim_ID_IsEnemyDead = Animator.StringToHash("isEnemyDead");
-        _anim_Length = _anim_Destruction.runtimeAnimatorController.animationClips[0].length/1.75f;
-
-        _enemyManager = transform.parent.GetComponent<EnemyManager>();
-        if (_enemyManager == null)
+        else
         {
-            Debug.LogError("Enemy could not locate its Manager as a parent.");
+            _anim_ID_IsEnemyDead = Animator.StringToHash("isEnemyDead");
+            _anim_Length = _anim_Destruction.runtimeAnimatorController.animationClips[0].length / 1.75f;
+            if (_anim_ID_IsEnemyDead == 0)
+            {
+                Debug.LogError("Enemy could not locate isEnemyDead parameter of the Animator.");
+            }
+        }
+
+        Transform parent = transform.parent;
+        if (parent == null)
+        {
+            Debug.LogError("Enemy could not locate its parent.");
             _isChildOfManager = false;
         }
-        _laserManager = transform.parent.parent.GetComponent<SpawnManager>().LaserContainer();        
-        _collider = GetComponent<Collider2D>();
-        _audio_Destruction = transform.parent.GetComponent<AudioSource>();
+        else
+        {
+            _enemyManager = parent.GetComponent<EnemyManager>();
+            _audio_Destruction = parent.GetComponent<AudioSource>();
+            if (_enemyManager == null)
+            {
+                Debug.LogError("Enemy could not locate its Manager on the parent.");
+                _isChildOfManager = false;
+            }
+            if (_audio_Destruction == null)
+            {
+                Debug.LogError("Enemy could not locate destruction audio in Enemy Container.");
+            }
+        }
 
-        if (_collider == null)
+        parent = parent.parent;
+        if (parent == null)
         {
-            Debug.LogError("Enemy could not locate its collider.");
+            Debug.LogError("Enemy could not locate its paret.parent.");
         }
-        if (_audio_Destruction == null)
+        else
         {
-            Debug.LogError("Enemy could not locate destruction audio in Enemy Container.");
-        }
-        if (_anim_ID_IsEnemyDead == 0)
-        {
-            Debug.LogError("Enemy could not locate isEnemyDead parameter of the Animator.");
+            SpawnManager spawnManager = parent.GetComponent<SpawnManager>();
+            if (spawnManager == null)
+            {
+                Debug.LogError("Enemy could not locate Spawn Manager on its parent.parent.");
+            }
+            else
+            {
+                _laserManager = spawnManager.LaserContainer();
+                if (_laserManager == null)
+                {
+                    Debug.LogAssertion("Enemy received invalid Laser Manager reference from Spawn Manager.");
+                }
+            }
         }
     }
 
@@ -115,7 +147,15 @@ public class Enemy : MovingObject
         {                     
             _collider.enabled = false;
             other.gameObject.SetActive(false);
-            other.transform.GetComponent<Laser>().AddScore(1);
+            Laser laser = other.transform.GetComponent<Laser>();
+            if (laser == null)
+            {
+                Debug.LogError("Enemy could not locate Laser component on Collider.");
+            }
+            else
+            {
+                laser.AddScore(1);
+            }
             _isAlive = false;
             _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);           
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
@@ -125,7 +165,15 @@ public class Enemy : MovingObject
         {
             _collider.enabled = false;
             _isAlive = false;
-            other.GetComponent<Player>().EnemyCollision(_collisionDamage);
+            Player player = other.GetComponent<Player>();
+            if (player == null)
+            {
+                Debug.LogError("Enemy could not locate Player component on Collider.");
+            }
+            else
+            {
+                player.EnemyCollision(_collisionDamage);
+            }
             _anim_Destruction.SetTrigger(_anim_ID_IsEnemyDead);
             _audio_Destruction.PlayOneShot(_audio_Destruction.clip);
             StartCoroutine(Destruction());

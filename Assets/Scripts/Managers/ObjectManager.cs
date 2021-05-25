@@ -33,7 +33,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -49,7 +48,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -65,7 +63,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -81,7 +78,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -107,7 +103,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -122,7 +117,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -137,7 +131,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -152,7 +145,6 @@ public class ObjectManager : MonoBehaviour
                     newAsteroid = _reservedAsteroids[0];
                     _reservedAsteroids.RemoveAt(0);
                     newAsteroid.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
-                    newAsteroid.transform.rotation = Quaternion.identity;
                     newAsteroid.GetComponent<Asteroid>().Activate();
                 }
                 else
@@ -166,13 +158,20 @@ public class ObjectManager : MonoBehaviour
 
     public void AddToReserve(GameObject asteroid)
     {
-        if (_isReserveActive)
+        if (asteroid == null)
         {
-            _reservedAsteroids.Add(asteroid);
+            Debug.LogAssertion("Object Manager was handled an empty Asteroid reference.");
         }
         else
         {
-            Destroy(asteroid);
+            if (_isReserveActive)
+            {
+                _reservedAsteroids.Add(asteroid);
+            }
+            else
+            {
+                Destroy(asteroid);
+            }
         }
     }
 

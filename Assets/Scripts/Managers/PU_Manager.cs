@@ -42,7 +42,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedTripleFire[0];
                     _reservedTripleFire.RemoveAt(0);
                     new_PU.transform.position = new Vector3(Random.Range(-9.15f, 9.15f), 9f, 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -57,7 +56,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedTripleFire[0];
                     _reservedTripleFire.RemoveAt(0);
                     new_PU.transform.position = new Vector3(Random.Range(-9.15f, 9.15f), -6f, 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -72,7 +70,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedTripleFire[0];
                     _reservedTripleFire.RemoveAt(0);
                     new_PU.transform.position = new Vector3(-12f, Random.Range(-3.85f, 5.90f), 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -87,7 +84,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedTripleFire[0];
                     _reservedTripleFire.RemoveAt(0);
                     new_PU.transform.position = new Vector3(12f, Random.Range(-3.85f, 5.90f), 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -111,7 +107,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedSpeedUp[0];
                     _reservedSpeedUp.RemoveAt(0);
                     new_PU.transform.position = new Vector3(Random.Range(-9.15f, 9.15f), 9f, 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -126,7 +121,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedSpeedUp[0];
                     _reservedSpeedUp.RemoveAt(0);
                     new_PU.transform.position = new Vector3(Random.Range(-9.15f, 9.15f), -6f, 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -141,7 +135,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedSpeedUp[0];
                     _reservedSpeedUp.RemoveAt(0);
                     new_PU.transform.position = new Vector3(-12f, Random.Range(-3.85f, 5.90f), 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -156,7 +149,6 @@ public class PU_Manager : MonoBehaviour
                     new_PU = _reservedSpeedUp[0];
                     _reservedSpeedUp.RemoveAt(0);
                     new_PU.transform.position = new Vector3(12f, Random.Range(-3.85f, 5.90f), 0);
-                    new_PU.transform.rotation = Quaternion.identity;
                     new_PU.GetComponent<PowerUp>().Activate();
                 }
                 else
@@ -239,21 +231,28 @@ public class PU_Manager : MonoBehaviour
 
     public void AddToReserve(GameObject PowerUp)
     {
-        if (PowerUp.CompareTag("PU_Shield"))
+        if (PowerUp == null)
         {
-            _reservedShield.Add(PowerUp);
-        }
-        else if (PowerUp.CompareTag("PU_SpeedUp"))
-        {
-            _reservedSpeedUp.Add(PowerUp);
-        }
-        else if (PowerUp.CompareTag("PU_TripleFire"))
-        {
-            _reservedTripleFire.Add(PowerUp);
+            Debug.LogAssertion("Power Up Manager was handled an empty Power Up reference.");
         }
         else
         {
-            Debug.LogAssertion("Name of a PU added to reserve is unrecognized.");
+            if (PowerUp.CompareTag("PU_Shield"))
+            {
+                _reservedShield.Add(PowerUp);
+            }
+            else if (PowerUp.CompareTag("PU_SpeedUp"))
+            {
+                _reservedSpeedUp.Add(PowerUp);
+            }
+            else if (PowerUp.CompareTag("PU_TripleFire"))
+            {
+                _reservedTripleFire.Add(PowerUp);
+            }
+            else
+            {
+                Debug.LogAssertion("Name of a PU added to reserve is unrecognized.");
+            }
         }
     }
 

@@ -82,18 +82,34 @@ public class MovingObject : MonoBehaviour
         Start();
     }
 
-    public void SetForwardDirection(Vector3 forawdDirection)
+    public void SetForwardDirection(Vector3 forwardDirection)
     {
-        _forwardDirection = forawdDirection;
+        if (forwardDirection == null)
+        {
+            Debug.LogAssertion("Moving Object was handled an empty Forward Direction.");
+        }
+        else
+        {
+            _forwardDirection = forwardDirection;
+        }
     }
 
     public void SetSpeed(float speed)
     {
+        if (speed <= 0)
+        {
+            Debug.LogWarning("Moving Object was handled not positive Speed.");
+        }       
         _speed = speed;
     }
 
     public void SetRotationalSpeed(float rotationalSpeed)
     {
+        if (rotationalSpeed == 0)
+        {
+            Debug.LogWarning("Moving Object was handled a zero Rotational Speed.");
+            _isRotating = false;
+        }        
         _rotationalSpeed = rotationalSpeed;
     }
 
@@ -109,6 +125,10 @@ public class MovingObject : MonoBehaviour
 
     public void FullSetup(float speed, float rotationalSpeed, Vector3 forwardDirection, bool isTurningBack)
     {
+        if (speed <= 0)
+        {
+            Debug.LogWarning("Moving Object was handled not positive Speed.");
+        }
         _speed = speed;
         if (rotationalSpeed == 0)
         {
@@ -118,7 +138,14 @@ public class MovingObject : MonoBehaviour
         {
             _rotationalSpeed = rotationalSpeed;
         }
-        _forwardDirection = forwardDirection;
+        if (forwardDirection == null)
+        {
+            Debug.LogAssertion("Moving Object was handled an empty Forward Direction.");
+        }
+        else
+        {
+            _forwardDirection = forwardDirection;
+        }
         _isTurningBack = isTurningBack;
     }
 }

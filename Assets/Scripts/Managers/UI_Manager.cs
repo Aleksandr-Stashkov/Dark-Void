@@ -12,19 +12,17 @@ public class UI_Manager : MonoBehaviour
     private GameObject _pnl_Controls, _tmp_Restart, _tmp_NewRecord;
     private Text _txt_Score1, _txt_Score2, _txt_GameOver;
     private Image _img_Lives1, _img_Lives2;
+    [SerializeField]
+    private Sprite[] _livesSprites;
     //Pause Menu
     private GameObject _pnl_PauseMenu;
     private Animator _anim_Pause;
     private int _anim_ID_Pause; //Animator parameter id
     private float _anim_Length;
     private bool _isPauseMenuActive; //Interaction with buttons in Pause Menu
-    private bool _isBeingPaused; //Current direction of the Pause change (for correct animation function)
-    
-    [SerializeField]
-    private Sprite[] _livesSprites;
+    private bool _isBeingPaused; //Current direction of the Pause change (for correct animation function)   
     
     private float _gameOverRevealDuration = 2f;
-
     private int _score1, _score2;
     private int _record;
     private bool _isNewRecord = false;
@@ -89,8 +87,15 @@ public class UI_Manager : MonoBehaviour
         else
         {
             _anim_Pause = _pnl_PauseMenu.GetComponent<Animator>();
-            _anim_ID_Pause = Animator.StringToHash("Pause");
-            _anim_Length = _anim_Pause.runtimeAnimatorController.animationClips[0].length;
+            if (_anim_Pause == null)
+            {
+                Debug.LogError("UI Manager could not locate Pause Menu's Animator.");
+            }
+            else
+            {
+                _anim_ID_Pause = Animator.StringToHash("Pause");
+                _anim_Length = _anim_Pause.runtimeAnimatorController.animationClips[0].length;
+            }
         }
         
         if (_gameManager == null)
@@ -115,6 +120,10 @@ public class UI_Manager : MonoBehaviour
         {
             Debug.LogError("UI Manager could not locate Lives1 Image.");
         }
+        if (_livesSprites.Length != 4)
+        {
+            Debug.LogError("Number of Lives Sprites is not 4.");
+        }
         if (_txt_GameOver == null)
         {
             Debug.LogError("UI Manager could not locate Game Over Text.");
@@ -126,11 +135,7 @@ public class UI_Manager : MonoBehaviour
         if (_tmp_NewRecord == null)
         {
             Debug.LogError("UI Manager could not locate New Record Text.");
-        }
-        if (_anim_Pause == null)
-        {
-            Debug.LogError("UI Manager could not locate Pause Menu's Animator.");
-        }
+        }        
         if (_anim_ID_Pause == 0)
         {
             Debug.LogError("UI Manager could not find Pause parameter of the Pause Menu Animator.");
@@ -300,7 +305,7 @@ public class UI_Manager : MonoBehaviour
 
         if(_score1+_score2 > _record)
         {
-            UpdateRecord(_score1+_score2);
+            UpdateRecord(_score1 + _score2);
         }
     }
     public void UpdateScore2(int newScore)

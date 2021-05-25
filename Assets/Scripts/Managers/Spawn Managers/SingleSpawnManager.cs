@@ -22,14 +22,22 @@ public class SingleSpawnManager : SpawnManager
 
     private void FindPlayer()
     {
-        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<SinglePlayer>();
-        if (_player == null)
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player == null)
         {
-            Debug.LogError("Spawn Manager could not locate Player.");
+            Debug.LogError("Spawn Manager could not locate Player Game Object");
         }
         else
         {
-            _player.SetLaserContainer(_laserManager);
+            _player = player.GetComponent<SinglePlayer>();
+            if (_player == null)
+            {
+                Debug.LogError("Spawn Manager could not locate Player component.");
+            }
+            else
+            {
+                _player.SetLaserContainer(_laserManager);
+            }
         }
     }
 

@@ -27,8 +27,7 @@ public class EnemyManager : MonoBehaviour
                 {
                     newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
-                    newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
-                    newEnemy.transform.rotation = Quaternion.identity;
+                    newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);                    
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -43,7 +42,6 @@ public class EnemyManager : MonoBehaviour
                     newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
                     newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
-                    newEnemy.transform.rotation = Quaternion.identity;
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -58,7 +56,6 @@ public class EnemyManager : MonoBehaviour
                     newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
                     newEnemy.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
-                    newEnemy.transform.rotation = Quaternion.identity;
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -73,7 +70,6 @@ public class EnemyManager : MonoBehaviour
                     newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
                     newEnemy.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
-                    newEnemy.transform.rotation = Quaternion.identity;
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -84,7 +80,7 @@ public class EnemyManager : MonoBehaviour
                 break;
         }
     }
-    //with isTurningBack = false
+    //isTurningBack = false
     public void CreateEnemy(direction waveDirection)
     {
         switch (waveDirection)
@@ -95,7 +91,6 @@ public class EnemyManager : MonoBehaviour
                     GameObject newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
                     newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), 7.8f);
-                    newEnemy.transform.rotation = Quaternion.identity;
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -109,7 +104,6 @@ public class EnemyManager : MonoBehaviour
                     GameObject newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
                     newEnemy.transform.position = new Vector3(Random.Range(-8.25f, 8.25f), -6f);
-                    newEnemy.transform.rotation = Quaternion.identity;
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -123,7 +117,6 @@ public class EnemyManager : MonoBehaviour
                     GameObject newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
                     newEnemy.transform.position = new Vector3(-11.5f, Random.Range(-3.9f, 5.75f));
-                    newEnemy.transform.rotation = Quaternion.identity;
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -137,7 +130,6 @@ public class EnemyManager : MonoBehaviour
                     GameObject newEnemy = _reservedEnemies[0];
                     _reservedEnemies.RemoveAt(0);
                     newEnemy.transform.position = new Vector3(11.5f, Random.Range(-3.9f, 5.75f));
-                    newEnemy.transform.rotation = Quaternion.identity;
                     newEnemy.GetComponent<Enemy>().Activate();
                 }
                 else
@@ -150,7 +142,14 @@ public class EnemyManager : MonoBehaviour
 
     public void AddToReserve(GameObject enemy)
     {
-        _reservedEnemies.Add(enemy);        
+        if (enemy == null)
+        {
+            Debug.LogAssertion("Enemy Manager was handled an empty Enemy reference.");
+        }
+        else
+        {
+            _reservedEnemies.Add(enemy);
+        }
     }
 
     public void TrimReserve()

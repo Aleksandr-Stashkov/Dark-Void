@@ -54,15 +54,38 @@ public class Player : MonoBehaviour
 
     private void FindObjects()
     {
-        _UI_Manager = GameObject.Find("Canvas").GetComponent<UI_Manager>();        
+        GameObject canvas = GameObject.Find("Canvas");
+        if (canvas == null)
+        {
+            Debug.LogError("Player could not find Canvas.");
+        }
+        else
+        {
+            _UI_Manager = canvas.GetComponent<UI_Manager>();
+            if (_UI_Manager == null)
+            {
+                Debug.LogError("Player could not locate UI Manager.");
+            }
+        }
 
         _anim_Turning = GetComponent<Animator>();
         if (_anim_Turning == null)
         {
-            Debug.LogError("Player could not locate its animator.");
+            Debug.LogError("Player could not locate its Animator.");
         }
-        _anim_ID_TurnLeft = Animator.StringToHash("Turn_Left");
-        _anim_ID_TurnRight = Animator.StringToHash("Turn_Right");        
+        else
+        {
+            _anim_ID_TurnLeft = Animator.StringToHash("Turn_Left");
+            _anim_ID_TurnRight = Animator.StringToHash("Turn_Right");
+            if (_anim_ID_TurnLeft == 0)
+            {
+                Debug.LogError("Player's animator could not find Turn_Left parameter.");
+            }
+            if (_anim_ID_TurnRight == 0)
+            {
+                Debug.LogError("Player's animator could not find Turn_Right parameter.");
+            }
+        }
         _audio_Source = GetComponent<AudioSource>();
 
         Transform child;
@@ -96,11 +119,7 @@ public class Player : MonoBehaviour
     }
 
     private void CheckObjects()
-    {
-        if (_UI_Manager == null)
-        {
-            Debug.LogError("Player could not obtain link to UI Canvas.");
-        }
+    {        
         if (_audio_Source == null)
         {
             Debug.LogError("Player could not locate its audio source.");
@@ -113,18 +132,10 @@ public class Player : MonoBehaviour
         {
             Debug.LogError("Player could not locate powerup audio.");
         }
-        /*if (_audio_Damage == null)
-        {
-            Debug.LogError("Player could not locate damage audio.");
-        }*/
-        if (_anim_ID_TurnLeft == 0)
-        {
-            Debug.LogError("Player's animator could not find Turn_Left parameter.");
-        }
-        if (_anim_ID_TurnRight == 0)
-        {
-            Debug.LogError("Player's animator could not find Turn_Right parameter.");
-        }        
+        //if (_audio_Damage == null)
+        //{
+        //    Debug.LogError("Player could not locate damage audio.");
+        //}             
         if (_shield == null)
         {
             Debug.LogError("Player could not locate Shield.");
@@ -401,23 +412,59 @@ public class Player : MonoBehaviour
         {
             StartCoroutine(ActivateTripleFire());
             _audio_Source.PlayOneShot(_audio_PowerUp);
-            other.GetComponent<PowerUp>().DisposeOf_PU();
+            PowerUp powerUp = other.GetComponent<PowerUp>();
+            if (powerUp == null)
+            {
+                Debug.LogError("Player could not locate Power Up component on Collider.");
+                Destroy(other);
+            }
+            else
+            {
+                powerUp.DisposeOfSelf();
+            }
         }
         if (other.CompareTag("PU_SpeedUp"))
         {
             StartCoroutine(ActivateSpeedUp());
             _audio_Source.PlayOneShot(_audio_PowerUp);
-            other.GetComponent<PowerUp>().DisposeOf_PU();
+            PowerUp powerUp = other.GetComponent<PowerUp>();
+            if (powerUp == null)
+            {
+                Debug.LogError("Player could not locate Power Up component on Collider.");
+                Destroy(other);
+            }
+            else
+            {
+                powerUp.DisposeOfSelf();
+            }
         }
         if (other.CompareTag("PU_Shield"))
         {
             _shield.gameObject.SetActive(true);
             _audio_Source.PlayOneShot(_audio_PowerUp);
-            other.GetComponent<PowerUp>().DisposeOf_PU();
+            PowerUp powerUp = other.GetComponent<PowerUp>();
+            if (powerUp == null)
+            {
+                Debug.LogError("Player could not locate Power Up component on Collider.");
+                Destroy(other);
+            }
+            else
+            {
+                powerUp.DisposeOfSelf();
+            }
         }
         if (other.CompareTag("Fire_enemy"))
         {
-            other.GetComponent<Laser>().Dispose();
+            Laser laser = other.GetComponent<Laser>();
+            if (laser == null)
+            {
+                Debug.LogError("Player could not locate Laser component on Collider.");
+                Destroy(other);
+            }
+            else
+            {
+                laser.Dispose();
+            }
             ObjectCollision(1);
         }
     }

@@ -9,11 +9,20 @@ public class PowerUp : MovingObject
 
     protected override void Start()
     {
-        _PU_Manager = transform.parent.GetComponent<PU_Manager>();
-        if (_PU_Manager == null)
+        Transform PU_Container = transform.parent;
+        if (PU_Container == null)
         {
-            Debug.LogError("Power Up could not locate its Manager as a parent.");
+            Debug.LogError("Power Up could not locate its parent.");
             _isChildOfManager = false;
+        }
+        else
+        {
+            _PU_Manager = PU_Container.GetComponent<PU_Manager>();
+            if (_PU_Manager == null)
+            {
+                Debug.LogError("Power Up could not locate its Manager on the parent.");
+                _isChildOfManager = false;
+            }
         }
 
         base.Start();
@@ -32,7 +41,7 @@ public class PowerUp : MovingObject
         }
     }
 
-    public void DisposeOf_PU()
+    public void DisposeOfSelf()
     {
         Dispose();
     }
