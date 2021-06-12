@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    private UI_Manager _UI_Manager;    
+    private PauseMenu _pauseMenu;    
     private bool _isCoop = false;    
     private bool _canRestart = false; //Restart by R button on death
     
@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1;
 
-        Find_UI_Manager();
+        FindObjects();
     }
 
     private void IdentifyScene()
@@ -31,23 +31,33 @@ public class GameManager : MonoBehaviour
         Debug.Log("Loaded " + sceneName + ".");
     }
 
-    private void Find_UI_Manager()
+    private void FindObjects()
     {
-        GameObject Canvas = GameObject.Find("Canvas");
-        if (Canvas == null)
+        GameObject canvas = GameObject.Find("Canvas");
+        if (canvas == null)
         {
             Debug.LogError("Game Manager could not find Canvas.");
         }
         else
         {
-            _UI_Manager = Canvas.GetComponent<UI_Manager>();
-            if (_UI_Manager == null)
+            UI_Manager manager = canvas.GetComponent<UI_Manager>();
+            if (manager == null)
             {
                 Debug.LogError("Game Manager could not find UI Manager on Canvas.");
             }
             else
             {
-                _UI_Manager.SetGameManager(this);
+                manager.SetGameManager(this);
+            }
+
+            _pauseMenu = canvas.GetComponent<PauseMenu>();
+            if (_pauseMenu == null)
+            {
+                Debug.LogError("Game Manager could not find Pause Menu script.");
+            }
+            else
+            {
+                _pauseMenu.SetGameManager(this);
             }
         }
     }
@@ -60,7 +70,7 @@ public class GameManager : MonoBehaviour
         }
         if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Pause))
         {
-            _UI_Manager.Pause(isPaused);
+            _pauseMenu.Pause(isPaused);
         }
     }
 
